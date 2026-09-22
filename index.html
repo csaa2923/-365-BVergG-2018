@@ -34,7 +34,7 @@ textarea{min-height:90px;resize:vertical}.locked,input[readonly]{background:#f0f
 @media(max-width:560px){main{padding:0 10px}.grid,.g2,.kpis{grid-template-columns:1fr}.card{padding:17px 15px}h2{margin:0 -15px 16px;padding-left:15px;padding-right:15px}.z1table{display:block;overflow-x:auto}.actions .btn{flex:1 1 45%}}
 #printFooter{display:none}
 @media print{
-@page{size:A4;margin:12mm 11mm 15mm 11mm}
+@page{size:A4;margin:16mm 11mm 11mm 11mm}
 .no-print,.print-hide,.actions,.tabs,.lockbtn,.del{display:none!important}
 #tabs{display:none!important}
 #panels .panel{display:none!important}
@@ -61,7 +61,7 @@ textarea{min-height:42px}
 .z1table tr{break-inside:avoid;page-break-inside:avoid}
 .z1table th,.z1table td{padding:4px 5px;font-size:8.5px}
 section.card:nth-of-type(4),section.card:nth-of-type(5){break-before:auto;page-break-before:auto}
-#printFooter{display:flex!important;position:fixed;left:11mm;right:11mm;bottom:3mm;justify-content:space-between;border-top:1px solid #b8c5cc;padding-top:2mm;font-size:7.5px;color:#5d707b}
+#printFooter{display:flex!important;position:fixed;left:11mm;right:11mm;top:3mm;bottom:auto;justify-content:space-between;border-top:0;border-bottom:1px solid #b8c5cc;padding-top:0;padding-bottom:2mm;font-size:7.5px;color:#5d707b}
 .pageCounter:after{content:"Seite " counter(page)}
 }
 </style></head>
