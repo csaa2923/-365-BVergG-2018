@@ -95,7 +95,7 @@ Die in diesem Prüftool erfassten Z-1-Vertragsänderungen werden <b>netto saldie
 <div class="choice"><input type="radio" name="legalbasis" id="basis6" value="§ 365 Abs. 3 Z 6" onchange="basisChanged(5)"><label for="basis6">○ Z 6</label></div>
 <div class="choice"><input type="radio" name="legalbasis" id="basis0" value="keine Zuordnung" onchange="basisChanged(-1)"><label for="basis0">○ keine Zuordnung</label></div>
 </div>
-<div class="tabs" id="tabs"></div><div id="panels"></div></section>
+<div id="basisHint" class="result warn" style="margin-top:14px"><b>Hinweis:</b> Die Detailprüfung wird nach Auswahl der maßgeblichen Rechtsgrundlage angezeigt.</div><div class="tabs" id="tabs" style="display:none"></div><div id="panels"></div></section>
 
 <section class="card"><h2>5 · Gesamtbeurteilung durch die Projektleitung</h2>
 <div class="result warn" style="margin-bottom:14px"><b>Prüfung durch die Projektleitung</b><br>Die nachfolgende Gesamtbeurteilung dokumentiert die vergaberechtliche Ersteinschätzung der Projektleitung. Die abschließende Prüfung der gewählten vergaberechtlichen Grundlage erfolgt nochmals durch die <b>Abteilung Beschaffung</b>.</div>
@@ -194,14 +194,24 @@ function build(){
  let tabs=document.getElementById("tabs"), panels=document.getElementById("panels");
  defs.forEach((d,i)=>{tabs.innerHTML+=`<button class="tab ${i==0?'active':''}" onclick="show(${i})">${d[0]}</button>`;
  let qs=d[1].map(q=>`<div class="q"><div>${q[1]}<small>${q[2]}</small></div><div class="yn yn3"><input type="radio" name="${q[0]}" id="${q[0]}Y" value="yes" onchange="assess()"><label for="${q[0]}Y">○ Ja</label><input type="radio" name="${q[0]}" id="${q[0]}N" value="no" onchange="assess()"><label for="${q[0]}N">○ Nein</label><input type="radio" name="${q[0]}" id="${q[0]}X" value="na" onchange="assess()"><label for="${q[0]}X">○ Nicht relevant</label></div></div>`).join("");
- panels.innerHTML+=`<div class="panel ${i==0?'active':''}" id="p${i}"><div class="ztitle">${d[0]}</div>${qs}<div id="r${i}" class="result">Noch nicht vollständig beurteilt.</div></div>`});
+ panels.innerHTML+=`<div class="panel" id="p${i}"><div class="ztitle">${d[0]}</div>${qs}<div id="r${i}" class="result">Noch nicht vollständig beurteilt.</div></div>`});
 }
 function show(i){document.querySelectorAll(".tab").forEach((x,j)=>x.classList.toggle("active",i==j));document.querySelectorAll(".panel").forEach((x,j)=>x.classList.toggle("active",i==j))}
 function basisChanged(i){
  let r=document.querySelector('input[name="legalbasis"]:checked');
  document.getElementById("classification").value=r?r.value:"";
  document.querySelectorAll(".choice label").forEach((l,j)=>{let inp=l.previousElementSibling;l.textContent=(inp.checked?"● ":"○ ")+(inp.id==="basis0"?"keine Zuordnung":"Z "+inp.id.replace("basis",""))});
- if(i>=0) show(i);
+ if(i>=0){
+   show(i);
+   let h=document.getElementById("basisHint");
+   h.className="result warn";
+   h.innerHTML="<b>Ausgewählt: § 365 Abs. 3 Z "+(i+1)+"</b><br>Die nachfolgende Detailprüfung wurde auf diese Rechtsgrundlage umgestellt. Bitte die zugehörigen Prüfkriterien vollständig beantworten.";
+ }else{
+   document.querySelectorAll(".panel").forEach(x=>x.classList.remove("active"));
+   let h=document.getElementById("basisHint");
+   h.className="result warn";
+   h.innerHTML="<b>Keine Rechtsgrundlage ausgewählt.</b><br>Bitte die Entscheidungs-Checkliste prüfen und anschließend die maßgebliche Ziffer auswählen.";
+ }
  assess();
 }
 function moneyParse(v){if(typeof v==="number")return v;v=(v||"").toString().trim().replace(/\s/g,"").replace(/€/g,"");if(v.includes(","))v=v.replace(/\./g,"").replace(",",".");return parseFloat(v)||0}
@@ -222,7 +232,7 @@ function decision(){
  else if(v("dF")==="yes"){sug="Z 6";detail="Unvorhersehbarkeit trotz Sorgfalt und unveränderten Gesamtcharakter dokumentieren."}
  else if(v("dD")==="yes"){sug="Z 4";detail="Nicht-Wesentlichkeit anhand sämtlicher Kriterien des Abs. 1 und 2 dokumentieren."}
  let el=document.getElementById("suggestion");
- if(sug){el.className="result ok";el.innerHTML="<b>Vorschlag: § 365 Abs. 3 "+sug+"</b><br>"+detail+" Die Ziffer wird nicht automatisch angekreuzt."}
+ if(sug){el.className="result ok";el.innerHTML="<b>Vorschlag: § 365 Abs. 3 "+sug+"</b><br>"+detail+"<br><b>Bitte die vorgeschlagene Rechtsgrundlage unten auswählen oder – bei abweichender Beurteilung – bewusst eine andere Ziffer wählen.</b>" }
  else {el.className="result warn";el.textContent="Noch keine eindeutige Zuordnung. Fragen vervollständigen bzw. neues Vergabeverfahren / vertiefte vergaberechtliche Prüfung prüfen."}
 }
 function calc(){calcReference();let ref=n("ref")||n("orig"),ch=n("change"),cum=n("cum"),lim=document.getElementById("type").value=="bau"?15:10;
