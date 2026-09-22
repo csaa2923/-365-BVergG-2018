@@ -34,23 +34,35 @@ textarea{min-height:90px;resize:vertical}.locked,input[readonly]{background:#f0f
 @media(max-width:560px){main{padding:0 10px}.grid,.g2,.kpis{grid-template-columns:1fr}.card{padding:17px 15px}h2{margin:0 -15px 16px;padding-left:15px;padding-right:15px}.z1table{display:block;overflow-x:auto}.actions .btn{flex:1 1 45%}}
 #printFooter{display:none}
 @media print{
-@page{margin:14mm 12mm 18mm 12mm}
-.print-hide{display:none!important}
+@page{size:A4;margin:12mm 11mm 15mm 11mm}
+.no-print,.print-hide,.actions,.tabs,.lockbtn,.del{display:none!important}
 #tabs{display:none!important}
 #panels .panel{display:none!important}
 #panels .panel.print-selected{display:block!important}
-#printFooter{display:flex!important;position:fixed;left:12mm;right:12mm;bottom:5mm;justify-content:space-between;border-top:1px solid #b8c5cc;padding-top:3mm;font-size:9px;color:#5d707b}
+body{background:#fff!important;font-size:9.5px;line-height:1.3;color:#111}
+header{background:#fff!important;color:#000!important;border-bottom:1.5px solid #000;padding:0 0 7px;margin:0 0 7px}
+header h1{font-size:17px}header p{font-size:9px}
+main{max-width:none;margin:0;padding:0}
+.card{box-shadow:none!important;border:1px solid #b8c2c8;border-radius:0;padding:8px 9px;margin:0 0 7px;break-inside:auto;page-break-inside:auto}
+h2{font-size:12px;margin:0 -9px 7px;padding:0 9px 5px;break-after:avoid;page-break-after:avoid}
+.grid{gap:6px 9px}.g2{gap:7px 9px}
+label{font-size:9px;margin-bottom:2px}
+input,select,textarea{padding:4px 5px;font-size:9px;border-radius:3px}
+textarea{min-height:42px}
+.note{font-size:8px;line-height:1.25}
+.kpis{gap:6px;margin-top:7px}.kpi{padding:5px 6px}.kpi b{font-size:11px;margin-top:1px}
+.q{padding:5px 6px;margin-bottom:4px;border-radius:4px;gap:8px;grid-template-columns:minmax(0,1fr) 190px;break-inside:avoid;page-break-inside:avoid}
+.q small{margin-top:1px;line-height:1.2}
+.yn{gap:4px}.yn label{padding:4px 7px;font-size:8.5px;min-width:58px}
+.result{padding:6px 8px;border-radius:3px;font-size:9px;line-height:1.25;break-inside:avoid;page-break-inside:avoid}
+.singlechoice{gap:4px;margin:5px 0}.choice label{padding:5px 8px;font-size:9px}
+.z1table{margin-top:7px;border-radius:0;break-inside:auto;page-break-inside:auto}
+.z1table thead{display:table-header-group}
+.z1table tr{break-inside:avoid;page-break-inside:avoid}
+.z1table th,.z1table td{padding:4px 5px;font-size:8.5px}
+section.card:nth-of-type(4),section.card:nth-of-type(5){break-before:auto;page-break-before:auto}
+#printFooter{display:flex!important;position:fixed;left:11mm;right:11mm;bottom:3mm;justify-content:space-between;border-top:1px solid #b8c5cc;padding-top:2mm;font-size:7.5px;color:#5d707b}
 .pageCounter:after{content:"Seite " counter(page)}
-body{background:#fff;font-size:11px}
-header{background:#fff;color:#000;border-bottom:2px solid #000;padding:12px 0}
-main{max-width:none;margin:0;padding:10px}
-.card{box-shadow:none;border:1px solid #bbb;border-radius:0;break-inside:avoid;padding:12px;margin-bottom:9px}
-h2{margin:0 0 10px;padding:0 0 6px}
-.actions,.tabs,.lockbtn,.del{display:none}
-.q{padding:7px}
-.note{color:#333}
-.kpi{padding:7px}
-.kpi b{font-size:14px}
 }
 </style></head>
 <body>
@@ -127,7 +139,7 @@ Die in diesem Prüftool erfassten Z-1-Vertragsänderungen werden <b>netto saldie
 <div><label>Projektleitung / Bearbeiter/in</label><input id="reviewer"></div><div><label>Datum Ersteinschätzung</label><input id="reviewdate" type="date"></div>
 </div></section>
 
-<section class="card"><h2>6 · Gespeicherte Prüfungen</h2>
+<section class="card no-print"><h2>6 · Gespeicherte Prüfungen</h2>
 <p class="note">Abgeschlossene oder noch in Bearbeitung befindliche Prüfungen können lokal in diesem Browser gespeichert, später wieder aufgerufen und bei Bedarf gelöscht werden.</p>
 <div class="actions"><button class="btn" onclick="saveAssessment()">Aktuellen Eintrag lokal speichern</button><button class="btn alt" onclick="exportJSON()">JSON exportieren</button><button class="btn alt" onclick="document.getElementById('imp').click()">JSON importieren</button><input id="imp" type="file" accept=".json" hidden onchange="importJSON(event)"><button class="btn" onclick="printAssessment()">A4 / Drucken</button><button class="btn alt" onclick="resetAll()">Neue Prüfung</button></div>
 <div id="savedAssessments" class="savedlist"></div>
@@ -272,7 +284,7 @@ function fields(){return [...document.querySelectorAll("input:not([type=file]),s
 function data(){let x={};fields().forEach(e=>x[e.id]=e.value);x._assessmentId=window.currentAssessmentId||"";let r=document.querySelector('input[name="legalbasis"]:checked');x.legalbasis=r?r.id:"";["dA","dB","dC","dD","dE","dF"].forEach(n=>{let q=document.querySelector('input[name="'+n+'"]:checked');x[n]=q?q.value:""});return x}
 function apply(x){fields().forEach(e=>{if(x[e.id]!==undefined)e.value=x[e.id]});setLotDefaults();fields().forEach(e=>{if(x[e.id]!==undefined)e.value=x[e.id]});["dA","dB","dC","dD","dE","dF"].forEach(n=>{document.querySelectorAll('input[name="'+n+'"]').forEach(q=>q.checked=(q.value===x[n]))});defs.flatMap(d=>d[1]).forEach(q=>{document.querySelectorAll('input[name="'+q[0]+'"]').forEach(e=>e.checked=(e.value===x[q[0]]))});if(x.legalbasis&&document.getElementById(x.legalbasis)){document.getElementById(x.legalbasis).checked=true;basisChanged(x.legalbasis==="basis0"?-1:parseInt(x.legalbasis.replace("basis",""))-1)}calc()}
 function preparePrint(){
- let d=new Date();document.getElementById("printStamp").textContent="Ausdruck: "+d.toLocaleDateString("de-AT")+" · "+d.toLocaleTimeString("de-AT",{hour:"2-digit",minute:"2-digit"})+" Uhr";
+ let d=new Date();document.getElementById("printStamp").textContent="§ 365 BVergG · Ausdruck "+d.toLocaleDateString("de-AT")+" · "+d.toLocaleTimeString("de-AT",{hour:"2-digit",minute:"2-digit"})+" Uhr";
  let r=document.querySelector('input[name="legalbasis"]:checked');
  let idx=r&&r.id!=="basis0"?parseInt(r.id.replace("basis",""))-1:-1;
  document.querySelectorAll("#tabs .tab").forEach((e,i)=>e.classList.toggle("print-hide",i!==idx));
