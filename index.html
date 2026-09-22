@@ -37,8 +37,8 @@ textarea{min-height:90px;resize:vertical}.locked,input[readonly]{background:#f0f
 <header><h1>§ 365 BVergG 2018 – Beurteilung einer Vertragsänderung</h1><p>Interne Prüfhilfe · Fassung § 365 gültig ab 01.03.2026</p></header>
 <main>
 <div class="card" style="padding:12px 18px"><div class="note"><b style="color:var(--navy)">Ablauf:</b> Los wählen → Index-/Wertbasis festlegen → Z-1-Änderungen erfassen → Checkliste beantworten → Rechtsgrundlage auswählen → Beurteilung dokumentieren.</div></div><section class="card"><h2>1 · Vorgang</h2><div class="grid">
-<div><label>Los</label><select id="lot" onchange="setLotDefaults();renderZ1()"><option value="">– Los auswählen –</option><option value="H41">H41</option><option value="H53">H53</option></select></div>
-<div><label>Vertrag</label><input id="contract" class="locked" readonly></div>
+<div><label>Los</label><select id="lot" onchange="setLotDefaults();renderZ1()"><option value="">– Los auswählen –</option><option value="H41">H41</option><option value="H53">H53</option><option value="OTHER">Anderes Los – händisch</option></select><input id="lotOther" style="display:none;margin-top:7px" placeholder="Losbezeichnung händisch eingeben" oninput="renderZ1()"></div>
+<div><label>Vertrag</label><input id="contract" class="locked" readonly placeholder="wird automatisch bzw. händisch eingetragen"></div>
 <div><label>MKF / Änderung</label><input id="mkf"></div><div><label>Datum</label><input id="date" type="date"></div>
 <div style="grid-column:span 2"><label>Bezeichnung der Änderung</label><input id="title"></div>
 <div><label>Auftragsart</label><select id="type" onchange="calc()"><option value="bau">Bauauftrag</option><option value="dl">Dienst-/Lieferauftrag</option></select></div>
@@ -46,19 +46,24 @@ textarea{min-height:90px;resize:vertical}.locked,input[readonly]{background:#f0f
 </div></section>
 
 <section class="card"><h2>2 · Vertrags- und Wertbasis</h2><div class="grid">
-<div><label>Ursprüngliche Auftragssumme netto (€)</label><input id="orig" class="locked" type="text" readonly></div>
+<div><label>Ursprüngliche Auftragssumme netto (€)</label><input id="orig" class="locked" type="text" readonly onblur="formatMoneyField(this);calc()"><small class="note">Bezugsgröße für die gesetzlichen Wertgrenzen. Bei „Anderes Los“ händisch eintragen.</small></div>
 <div><label>Indexstand Ausgang</label><input id="indexBase" type="text" inputmode="decimal" onblur="formatIndexField(this);calc()" placeholder="z. B. 100,000"><small class="note">Indexstand zum maßgeblichen Ausgangszeitpunkt des Vertrages.</small></div>
 <div><label>Indexstand aktuell</label><input id="indexCurrent" type="text" inputmode="decimal" onblur="formatIndexField(this);calc()" placeholder="z. B. 112,500"><small class="note">Aktueller, für die Anpassung maßgeblicher Indexstand.</small></div>
 <div><label>Indexierungsfaktor</label><input id="indexFactor" class="locked" type="text" readonly placeholder="–"></div>
 <div><label>Referenzwert gem. § 365 Abs. 5 (€)</label><input id="ref" class="locked" type="text" readonly><small class="note">Automatisch: ursprüngliche Auftragssumme × aktueller Indexstand ÷ Ausgangsindex.</small></div>
 <div><label>Wert dieser Änderung netto (€)</label><input id="change" type="text" inputmode="decimal" onblur="formatMoneyField(this);calc()" placeholder="0,00"></div>
-<div><label>Kumulierter Nettowert Z 1 (€)</label><input id="cum" class="locked" type="text" readonly placeholder="0,00"><small class="note">Summe der aufeinanderfolgenden Änderungen, die für die Z-1-Wertgrenze gemeinsam zu betrachten sind.</small></div>
+<div><label>Kumulierter Nettowert Z 1 (€)</label><input id="cum" class="locked" type="text" readonly placeholder="0,00"><small class="note">Nettosaldo der erfassten Z-1-Änderungen. Negative Beauftragungen/Minderungen reduzieren den kumulierten Wert.</small></div>
 </div><div class="kpis">
 <div class="kpi">Änderung / Referenzwert<b id="pct">–</b></div><div class="kpi">Z-1-Grenze<b id="limit">15 %</b></div>
 <div class="kpi">50-%-Grenze Z 5/6<b id="fifty">–</b></div><div class="kpi">Kumuliert / Referenz<b id="cpct">–</b></div>
-</div><p class="note">Bei Indexierung ist nach § 365 Abs. 5 der angepasste Wert als Referenzwert heranzuziehen; ohne Indexierung sieht Abs. 5 die Anpassung anhand der durchschnittlichen Inflationsrate in Österreich vor.</p></section>
+</div>
+<div class="result warn" style="margin-top:16px"><b>ⓘ Warum werden Auftragssumme und Index benötigt?</b><br>
+Die Auftragssumme ist die Bezugsgröße für die gesetzlichen Wertgrenzen. Bei <b>Z 1</b> wird bei Bauaufträgen insbesondere die 15-%-Grenze geprüft; bei <b>Z 5 und Z 6</b> ist – soweit anwendbar – die 50-%-Grenze relevant. Für diese Berechnungen ist nach § 365 Abs. 5 gegebenenfalls der angepasste Referenzwert heranzuziehen. Die Indexangaben werden daher für die Wertprüfung nach <b>Z 1, Z 5 und Z 6</b> benötigt; für Z 2, Z 3 und Z 4 sind sie für diese Prozentgrenzen nicht maßgeblich.</div>
+<p class="note">Bei Indexierung ist nach § 365 Abs. 5 der angepasste Wert als Referenzwert heranzuziehen; ohne Indexierung sieht Abs. 5 die Anpassung anhand der durchschnittlichen Inflationsrate in Österreich vor.</p></section>
 <section class="card"><h2>3 · Z 1 – gespeicherte Änderungen</h2>
 <p class="note">Die Einträge werden je Los dauerhaft im Browser gespeichert. Der kumulierte Nettowert wird automatisch aus dieser Tabelle gebildet und für die Z-1-Prüfung verwendet.</p>
+<div class="result warn" style="margin-bottom:14px"><b>Berechnungslogik Z 1 – 15-%-Grenze</b><br>
+Die in diesem Prüftool erfassten Z-1-Vertragsänderungen werden <b>netto saldiert</b>. Positive Beauftragungen erhöhen den kumulierten Z-1-Wert; <b>negative Beauftragungen bzw. Minderungen reduzieren ihn wieder</b> und damit die Ausschöpfung der 15-%-Grenze. Diese Saldierung ist die für dieses Prüftool verwendete Berechnungsmethodik. In Zweifelsfällen ist die konkrete vergaberechtliche Behandlung mit Beschaffung/Rechtsabteilung abzustimmen.</div>
 <div class="grid">
 <div><label>MKF / Änderung</label><input id="z1mkf" placeholder="z. B. MKF 045"></div>
 <div style="grid-column:span 2"><label>Bezeichnung</label><input id="z1title"></div>
@@ -137,26 +142,29 @@ const defs=[
 ["z6b","Gesamtcharakter des Auftrages bleibt unverändert?",""]
 ]]];
 
-function z1Key(){return "bverg365_z1_"+(document.getElementById("lot").value||"none")}
+function lotName(){let l=document.getElementById("lot").value;return l==="OTHER"?(document.getElementById("lotOther").value.trim()||"OTHER"):l}
+function z1Key(){return "bverg365_z1_"+(lotName()||"none")}
 function getZ1(){try{return JSON.parse(localStorage.getItem(z1Key())||"[]")}catch(e){return []}}
 function saveZ1(a){localStorage.setItem(z1Key(),JSON.stringify(a))}
 function addZ1(){
- let lot=document.getElementById("lot").value;if(!lot){alert("Bitte zuerst H41 oder H53 auswählen.");return}
+ let lot=lotName();if(!lot){alert("Bitte zuerst ein Los auswählen bzw. eingeben.");return}
  let amount=moneyParse(document.getElementById("z1amount").value);if(!amount){alert("Bitte Änderungswert eingeben.");return}
  let a=getZ1();a.push({mkf:document.getElementById("z1mkf").value,title:document.getElementById("z1title").value,amount:amount});saveZ1(a);
  document.getElementById("z1mkf").value="";document.getElementById("z1title").value="";document.getElementById("z1amount").value="";renderZ1()
 }
 function delZ1(i){let a=getZ1();a.splice(i,1);saveZ1(a);renderZ1()}
 function renderZ1(){
- let lot=document.getElementById("lot").value,con=document.getElementById("contract").value,a=getZ1(),sum=a.reduce((x,r)=>x+(Number(r.amount)||0),0);
+ let lot=lotName(),con=document.getElementById("contract").value,a=getZ1(),sum=a.reduce((x,r)=>x+(Number(r.amount)||0),0);
  document.getElementById("z1body").innerHTML=a.length?a.map((r,i)=>`<tr><td>${lot}</td><td>${con}</td><td>${r.mkf||""}</td><td>${r.title||""}</td><td class="num">${moneyFmt(r.amount)} €</td><td><button class="mini del" onclick="delZ1(${i})">Löschen</button></td></tr>`).join(""):`<tr><td colspan="6" class="note">Noch keine Z-1-Änderungen für ${lot||"das ausgewählte Los"} gespeichert.</td></tr>`;
  document.getElementById("z1sum").textContent=moneyFmt(sum)+" €";document.getElementById("cum").value=moneyFmt(sum);calc()
 }
 
-function setLotDefaults(){let l=document.getElementById("lot").value;
-if(l==="H41"){document.getElementById("contract").value="B0171";document.getElementById("orig").value=moneyFmt(651037834.39);}
-else if(l==="H53"){document.getElementById("contract").value="B0182";document.getElementById("orig").value=moneyFmt(959192014.29);}
-else{document.getElementById("contract").value="";document.getElementById("orig").value="";}
+function setLotDefaults(){let l=document.getElementById("lot").value,co=document.getElementById("contract"),o=document.getElementById("orig"),lo=document.getElementById("lotOther");
+lo.style.display=l==="OTHER"?"block":"none";
+if(l==="H41"){co.value="B0171";o.value=moneyFmt(651037834.39);co.readOnly=true;o.readOnly=true;co.classList.add("locked");o.classList.add("locked");}
+else if(l==="H53"){co.value="B0182";o.value=moneyFmt(959192014.29);co.readOnly=true;o.readOnly=true;co.classList.add("locked");o.classList.add("locked");}
+else if(l==="OTHER"){co.value="";o.value="";co.readOnly=false;o.readOnly=false;co.classList.remove("locked");o.classList.remove("locked");}
+else{co.value="";o.value="";co.readOnly=true;o.readOnly=true;co.classList.add("locked");o.classList.add("locked");}
 calc()}
 function lockField(id,bid){let e=document.getElementById(id),b=document.getElementById(bid);if(!e.value){alert("Bitte zuerst auswählen bzw. eingeben.");return}e.disabled=true;e.classList.add("locked");b.textContent="Fixiert ✓";b.disabled=true;localStorage.setItem("bverg365_lock_"+id,e.value);setLotDefaults()}
 function restoreLocks(){setLotDefaults()}
