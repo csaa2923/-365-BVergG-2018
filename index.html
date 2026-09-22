@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>§ 365 BVergG – Beurteilung Vertragsänderung</title>
+<style>
+:root{--navy:#12344d;--navy2:#1d4f6e;--blue:#2f6f95;--bg:#eef3f6;--card:#fff;--line:#d7e1e7;--text:#182934;--muted:#687b87;--ok:#e6f4eb;--okb:#5a9b70;--warn:#fff5d9;--warnb:#c69a2d;--bad:#fae6e8;--badb:#c9666e}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font:14px/1.45 "Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--text)}
+header{background:linear-gradient(120deg,var(--navy),var(--navy2));color:#fff;padding:25px 30px;border-bottom:4px solid #8da9ba}
+header h1{margin:0;font-size:25px;letter-spacing:.1px}header p{margin:5px 0 0;opacity:.82;font-size:13px}
+main{max-width:1280px;margin:22px auto;padding:0 18px 50px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px 22px;margin-bottom:16px;box-shadow:0 2px 9px rgba(18,52,77,.055)}
+h2{font-size:17px;margin:0 -22px 18px;padding:0 22px 12px;border-bottom:1px solid #e7edf1;color:var(--navy);display:flex;align-items:center;gap:9px}
+h2:before{content:"";width:5px;height:21px;border-radius:4px;background:var(--blue)}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px 16px}.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+label{display:block;font-size:12px;font-weight:700;margin-bottom:6px;color:#294352}
+input,select,textarea{width:100%;padding:10px 11px;border:1px solid #b9c9d3;border-radius:7px;background:#fff;color:var(--text);font:inherit;transition:.15s}
+input:focus,select:focus,textarea:focus{outline:0;border-color:var(--blue);box-shadow:0 0 0 3px rgba(47,111,149,.11)}
+textarea{min-height:90px;resize:vertical}.locked,input[readonly]{background:#f0f4f6!important;color:#465b68;border-color:#d2dce2}
+.note{font-size:12px;color:var(--muted);line-height:1.5}.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:18px}
+.kpi{border:1px solid var(--line);padding:13px 14px;border-radius:9px;background:#f8fafb;color:var(--muted);font-size:12px}.kpi b{display:block;font-size:20px;margin-top:4px;color:var(--navy)}
+.q{border:1px solid #e0e7eb;padding:13px 14px;margin-bottom:9px;border-radius:9px;display:grid;grid-template-columns:1fr 175px;gap:16px;align-items:center;background:#fbfcfd}.q b{color:#203e50}.q small{display:block;color:var(--muted);margin-top:4px;line-height:1.4}
+.yn{display:flex;gap:8px;justify-content:flex-end}.yn input{position:absolute;opacity:0;pointer-events:none}.yn label{min-width:76px;width:auto;margin:0;padding:8px 6px;border:1px solid #afbec7;border-radius:20px;background:#fff;text-align:center;cursor:pointer;font-size:13px}.yn3{flex-wrap:wrap}.yn input:checked+label{background:var(--navy);border-color:var(--navy);color:#fff;box-shadow:0 2px 5px rgba(18,52,77,.15)}
+.tabs{display:flex;gap:7px;flex-wrap:wrap;margin:17px 0 14px;padding-top:15px;border-top:1px solid #e6ecef}.tab{border:1px solid #aebec8;background:#fff;padding:8px 13px;border-radius:18px;cursor:pointer;font-weight:700;color:#385465}.tab.active{background:var(--navy);border-color:var(--navy);color:#fff}
+.panel{display:none}.panel.active{display:block}.ztitle{font-weight:800;color:var(--navy);margin:8px 0 9px;font-size:15px}
+.result{padding:13px 15px;border-radius:8px;background:#edf2f5;border-left:5px solid #9babb5;font-weight:650}.ok{background:var(--ok);border-left-color:var(--okb)}.warn{background:var(--warn);border-left-color:var(--warnb)}.bad{background:var(--bad);border-left-color:var(--badb)}
+.singlechoice{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 5px}.choice{position:relative}.choice input{position:absolute;opacity:0;pointer-events:none}.choice label{display:block;margin:0;padding:9px 14px;border:1px solid #aebdc7;border-radius:20px;background:#fff;cursor:pointer;font-size:13px}.choice input:checked+label{border-color:var(--navy);background:var(--navy);color:#fff}
+.z1table{width:100%;border-collapse:separate;border-spacing:0;margin-top:16px;border:1px solid var(--line);border-radius:9px;overflow:hidden}.z1table th,.z1table td{padding:10px 11px;text-align:left;border-bottom:1px solid #e4eaee}.z1table th{background:#eaf0f4;color:var(--navy);font-size:12px}.z1table tbody tr:hover{background:#f7fafb}.z1table tr:last-child td,.z1table tfoot tr:last-child th{border-bottom:0}.z1table td.num,.z1table th.num{text-align:right;white-space:nowrap}.z1table tfoot th{background:#f0f5f7;font-size:13px}
+.actions{display:flex;gap:9px;flex-wrap:wrap}.btn,.lockbtn{border:0;border-radius:7px;padding:10px 14px;background:var(--navy);color:#fff;cursor:pointer;font-weight:650;box-shadow:0 1px 3px rgba(0,0,0,.08)}.btn:hover,.lockbtn:hover{filter:brightness(1.08)}.btn.alt{background:#657985}.mini{padding:6px 9px;border:0;border-radius:5px;cursor:pointer}.del{background:#f6dfe1;color:#8c343b}
+.lockrow{display:flex;gap:7px}.lockrow input,.lockrow select{flex:1}.lockbtn{width:auto;white-space:nowrap;background:#657985}
+#suggestion{margin-top:14px}.sectionhint{margin:-8px 0 15px}
+@media(max-width:900px){.grid,.g2,.kpis{grid-template-columns:1fr 1fr}.q{grid-template-columns:1fr}.yn{justify-content:flex-start}}
+@media(max-width:560px){main{padding:0 10px}.grid,.g2,.kpis{grid-template-columns:1fr}.card{padding:17px 15px}h2{margin:0 -15px 16px;padding-left:15px;padding-right:15px}.z1table{display:block;overflow-x:auto}.actions .btn{flex:1 1 45%}}
+@media print{body{background:#fff;font-size:11px}header{background:#fff;color:#000;border-bottom:2px solid #000;padding:12px 0}main{max-width:none;margin:0;padding:10px}.card{box-shadow:none;border:1px solid #bbb;border-radius:0;break-inside:avoid;padding:12px;margin-bottom:9px}h2{margin:0 0 10px;padding:0 0 6px}.actions,.tabs,.lockbtn,.del{display:none}.panel{display:block!important}.q{padding:7px}.note{color:#333}.kpi{padding:7px}.kpi b{font-size:14px}}
+</style></head>
+<body>
+<header><h1>§ 365 BVergG 2018 – Beurteilung einer Vertragsänderung</h1><p>Interne Prüfhilfe · Fassung § 365 gültig ab 01.03.2026</p></header>
+<main>
+<div class="card" style="padding:12px 18px"><div class="note"><b style="color:var(--navy)">Ablauf:</b> Los wählen → Index-/Wertbasis festlegen → Z-1-Änderungen erfassen → Checkliste beantworten → Rechtsgrundlage auswählen → Beurteilung dokumentieren.</div></div><section class="card"><h2>1 · Vorgang</h2><div class="grid">
+<div><label>Los</label><select id="lot" onchange="setLotDefaults();renderZ1()"><option value="">– Los auswählen –</option><option value="H41">H41</option><option value="H53">H53</option></select></div>
+<div><label>Vertrag</label><input id="contract" class="locked" readonly></div>
+<div><label>MKF / Änderung</label><input id="mkf"></div><div><label>Datum</label><input id="date" type="date"></div>
+<div style="grid-column:span 2"><label>Bezeichnung der Änderung</label><input id="title"></div>
+<div><label>Auftragsart</label><select id="type" onchange="calc()"><option value="bau">Bauauftrag</option><option value="dl">Dienst-/Lieferauftrag</option></select></div>
+<div><label>Oberschwellenbereich?</label><select id="upper"><option value="yes">Ja</option><option value="no">Nein</option></select></div>
+</div></section>
+
+<section class="card"><h2>2 · Vertrags- und Wertbasis</h2><div class="grid">
+<div><label>Ursprüngliche Auftragssumme netto (€)</label><input id="orig" class="locked" type="text" readonly></div>
+<div><label>Indexstand Ausgang</label><input id="indexBase" type="text" inputmode="decimal" onblur="formatIndexField(this);calc()" placeholder="z. B. 100,000"><small class="note">Indexstand zum maßgeblichen Ausgangszeitpunkt des Vertrages.</small></div>
+<div><label>Indexstand aktuell</label><input id="indexCurrent" type="text" inputmode="decimal" onblur="formatIndexField(this);calc()" placeholder="z. B. 112,500"><small class="note">Aktueller, für die Anpassung maßgeblicher Indexstand.</small></div>
+<div><label>Indexierungsfaktor</label><input id="indexFactor" class="locked" type="text" readonly placeholder="–"></div>
+<div><label>Referenzwert gem. § 365 Abs. 5 (€)</label><input id="ref" class="locked" type="text" readonly><small class="note">Automatisch: ursprüngliche Auftragssumme × aktueller Indexstand ÷ Ausgangsindex.</small></div>
+<div><label>Wert dieser Änderung netto (€)</label><input id="change" type="text" inputmode="decimal" onblur="formatMoneyField(this);calc()" placeholder="0,00"></div>
+<div><label>Kumulierter Nettowert Z 1 (€)</label><input id="cum" class="locked" type="text" readonly placeholder="0,00"><small class="note">Summe der aufeinanderfolgenden Änderungen, die für die Z-1-Wertgrenze gemeinsam zu betrachten sind.</small></div>
+</div><div class="kpis">
+<div class="kpi">Änderung / Referenzwert<b id="pct">–</b></div><div class="kpi">Z-1-Grenze<b id="limit">15 %</b></div>
+<div class="kpi">50-%-Grenze Z 5/6<b id="fifty">–</b></div><div class="kpi">Kumuliert / Referenz<b id="cpct">–</b></div>
+</div><p class="note">Bei Indexierung ist nach § 365 Abs. 5 der angepasste Wert als Referenzwert heranzuziehen; ohne Indexierung sieht Abs. 5 die Anpassung anhand der durchschnittlichen Inflationsrate in Österreich vor.</p></section>
+<section class="card"><h2>3 · Z 1 – gespeicherte Änderungen</h2>
+<p class="note">Die Einträge werden je Los dauerhaft im Browser gespeichert. Der kumulierte Nettowert wird automatisch aus dieser Tabelle gebildet und für die Z-1-Prüfung verwendet.</p>
+<div class="grid">
+<div><label>MKF / Änderung</label><input id="z1mkf" placeholder="z. B. MKF 045"></div>
+<div style="grid-column:span 2"><label>Bezeichnung</label><input id="z1title"></div>
+<div><label>Änderungswert netto (€)</label><input id="z1amount" type="text" inputmode="decimal" onblur="formatMoneyField(this)" placeholder="0,00"></div>
+</div><br>
+<button class="btn" onclick="addZ1()">Zu Z-1-Tabelle hinzufügen</button>
+<table class="z1table"><thead><tr><th>Los</th><th>Vertrag</th><th>MKF / Änderung</th><th>Bezeichnung</th><th>Änderungswert netto</th><th></th></tr></thead><tbody id="z1body"></tbody><tfoot><tr><th colspan="4">Kumulierter Nettowert Z 1</th><th class="num" id="z1sum">0,00 €</th><th></th></tr></tfoot></table>
+</section>
+
+<section class="card"><h2>4 · Entscheidungs-Checkliste</h2>
+<p class="note">Die Fragen führen schrittweise zur in Betracht kommenden Ziffer. „Ja/Nein“ nach dem konkreten Sachverhalt beantworten. Das Tool schlägt anschließend eine Einordnung vor; die endgültige Auswahl bleibt bewusst manuell.</p>
+<div id="decisionChecklist">
+<div class="q"><div><b>A · Ist die Änderung bereits im ursprünglichen Vertrag / in den Ausschreibungsunterlagen vorgesehen?</b><small>Klare, präzise und eindeutig formulierte Vertragsänderungsklausel mit Umfang, Art und Anwendungsbedingungen?</small></div><div class="yn"><input type="radio" name="dA" id="dAY" value="yes" onchange="decision()"><label for="dAY">○ Ja</label><input type="radio" name="dA" id="dAN" value="no" onchange="decision()"><label for="dAN">○ Nein</label></div></div>
+<div class="q"><div><b>B · Wird der ursprüngliche Auftragnehmer durch einen neuen Vertragspartner ersetzt?</b><small>Falls ja, ist § 365 Abs. 3 Z 3 gesondert zu prüfen.</small></div><div class="yn"><input type="radio" name="dB" id="dBY" value="yes" onchange="decision()"><label for="dBY">○ Ja</label><input type="radio" name="dB" id="dBN" value="no" onchange="decision()"><label for="dBN">○ Nein</label></div></div>
+<div class="q"><div><b>C · Liegt die Änderung unter der Bagatellgrenze?</b><small>Unter einschlägigem Schwellenwert UND ≤ 15 % bei Bau bzw. ≤ 10 % bei Liefer-/Dienstleistung; kumulierter Nettowert beachten; Gesamtcharakter unverändert.</small></div><div class="yn"><input type="radio" name="dC" id="dCY" value="yes" onchange="decision()"><label for="dCY">○ Ja</label><input type="radio" name="dC" id="dCN" value="no" onchange="decision()"><label for="dCN">○ Nein</label></div></div>
+<div class="q"><div><b>D · Ist die Änderung trotz ihres Wertes nicht wesentlich?</b><small>Keine wettbewerbsrelevanten neuen Bedingungen, keine unvorhergesehene Verschiebung des wirtschaftlichen Gleichgewichts zugunsten des AN, keine erhebliche Ausweitung/Verringerung und kein unzulässiger AN-Wechsel.</small></div><div class="yn"><input type="radio" name="dD" id="dDY" value="yes" onchange="decision()"><label for="dDY">○ Ja</label><input type="radio" name="dD" id="dDN" value="no" onchange="decision()"><label for="dDN">○ Nein</label></div></div>
+<div class="q"><div><b>E · Sind zusätzliche, ursprünglich nicht vorgesehene Leistungen des bestehenden AN erforderlich?</b><small>Und kann ein AN-Wechsel aus wirtschaftlichen/technischen Gründen nicht erfolgen UND würde er erhebliche Schwierigkeiten oder beträchtliche Zusatzkosten verursachen?</small></div><div class="yn"><input type="radio" name="dE" id="dEY" value="yes" onchange="decision()"><label for="dEY">○ Ja</label><input type="radio" name="dE" id="dEN" value="no" onchange="decision()"><label for="dEN">○ Nein</label></div></div>
+<div class="q"><div><b>F · Wurde die Änderung durch nicht vorhersehbare Umstände erforderlich?</b><small>Umstände, die ein seiner Sorgfaltspflicht nachkommender Auftraggeber nicht vorhersehen konnte; Gesamtcharakter bleibt unverändert.</small></div><div class="yn"><input type="radio" name="dF" id="dFY" value="yes" onchange="decision()"><label for="dFY">○ Ja</label><input type="radio" name="dF" id="dFN" value="no" onchange="decision()"><label for="dFN">○ Nein</label></div></div>
+</div>
+<div id="suggestion" class="result warn">Checkliste ausfüllen – danach erscheint hier die vorgeschlagene Ziffer.</div>
+<br>
+<label>Maßgebliche Rechtsgrundlage – nach Prüfung genau eine auswählen</label>
+<div class="singlechoice" id="singlechoice">
+<div class="choice"><input type="radio" name="legalbasis" id="basis1" value="§ 365 Abs. 3 Z 1" onchange="basisChanged(0)"><label for="basis1">○ Z 1</label></div>
+<div class="choice"><input type="radio" name="legalbasis" id="basis2" value="§ 365 Abs. 3 Z 2" onchange="basisChanged(1)"><label for="basis2">○ Z 2</label></div>
+<div class="choice"><input type="radio" name="legalbasis" id="basis3" value="§ 365 Abs. 3 Z 3" onchange="basisChanged(2)"><label for="basis3">○ Z 3</label></div>
+<div class="choice"><input type="radio" name="legalbasis" id="basis4" value="§ 365 Abs. 3 Z 4" onchange="basisChanged(3)"><label for="basis4">○ Z 4</label></div>
+<div class="choice"><input type="radio" name="legalbasis" id="basis5" value="§ 365 Abs. 3 Z 5" onchange="basisChanged(4)"><label for="basis5">○ Z 5</label></div>
+<div class="choice"><input type="radio" name="legalbasis" id="basis6" value="§ 365 Abs. 3 Z 6" onchange="basisChanged(5)"><label for="basis6">○ Z 6</label></div>
+<div class="choice"><input type="radio" name="legalbasis" id="basis0" value="keine Zuordnung" onchange="basisChanged(-1)"><label for="basis0">○ keine Zuordnung</label></div>
+</div>
+<div class="tabs" id="tabs"></div><div id="panels"></div></section>
+
+<section class="card"><h2>5 · Gesamtbeurteilung und Freigabe</h2>
+<div id="overall" class="result">Bitte Prüffragen beantworten.</div><br>
+<div class="grid g2"><div><label>Begründung / Sachverhalt</label><textarea id="reason"></textarea></div><div><label>Offene Prüfpunkte / erforderliche Nachweise</label><textarea id="open"></textarea></div></div>
+<br><div class="grid">
+<div><label>Gewählte Einordnung</label><input id="classification" readonly placeholder="Auswahl oben treffen"></div>
+<div><label>Vergaberechtliche Prüfung / Freigabe</label><select id="approval"><option>offen</option><option>in Prüfung</option><option>erfolgt</option></select></div>
+<div><label>Prüfer/in</label><input id="reviewer"></div><div><label>Datum Prüfung</label><input id="reviewdate" type="date"></div>
+</div></section>
+
+<section class="card"><div class="actions"><button class="btn" onclick="save()">Lokal speichern</button><button class="btn alt" onclick="load()">Gespeicherten Stand laden</button><button class="btn alt" onclick="exportJSON()">JSON exportieren</button><button class="btn alt" onclick="document.getElementById('imp').click()">JSON importieren</button><input id="imp" type="file" accept=".json" hidden onchange="importJSON(event)"><button class="btn" onclick="window.print()">A4 / Drucken</button><button class="btn alt" onclick="resetAll()">Neu</button></div>
+<p class="note">Interne Entscheidungshilfe, keine automatisierte Rechtsfreigabe. Das Ergebnis beruht ausschließlich auf den eingegebenen Angaben. Bei Z 5/6 ist im Oberschwellenbereich die Bekanntgabe nach § 365 Abs. 4 gesondert zu beachten.</p></section>
+</main>
+<script>
+const defs=[
+["Z 1 · Wertgrenze",[
+["z1a","Änderungswert unterschreitet den einschlägigen gesetzlichen Schwellenwert?","Zusätzlich zur prozentuellen Grenze erforderlich."],
+["z1b","Gesamtcharakter des Vertrages bleibt unverändert?","Bei mehreren Änderungen ist der kumulierte Nettowert maßgeblich."]
+]],
+["Z 2 · Änderungsklausel",[
+["z2a","Ist eine konkrete Vertragsänderungsklausel / Option in den ursprünglichen Ausschreibungsunterlagen vorhanden?","Konkrete Klausel und Fundstelle dokumentieren."],
+["z2b","Ist die konkrete Klausel klar, präzise und eindeutig formuliert?","Bei H41/H53 wegen der teilweise allgemein formulierten Klauseln besonders kritisch prüfen."],
+["z2c","Sind Umfang und Art möglicher Änderungen sowie die Anwendungsbedingungen ausreichend bestimmt?","Die mögliche Vertragsänderung muss aus der ursprünglichen Klausel nachvollziehbar ableitbar sein."],
+["z2d","Wird der Gesamtcharakter des Vertrages durch die Änderung nicht verändert?","Zusätzlich begründen, warum die konkrete Änderung eindeutig von der Klausel erfasst ist."]
+]],
+["Z 3 · Auftragnehmerwechsel",[
+["z3a","Liegt ein gesetzlich zulässiger Grund für den Auftragnehmerwechsel vor?","Änderungsklausel, qualifizierte Unternehmensumstrukturierung oder Übernahme von Verpflichtungen gegenüber Subunternehmern."],
+["z3b","Werden die gesetzlichen Voraussetzungen des konkret gewählten Falles vollständig erfüllt?","Bei Umstrukturierung insbesondere Eignung, keine weiteren wesentlichen Änderungen und keine Umgehung."]
+]],
+["Z 4 · Nicht wesentliche Änderung",[
+["z4a","Hätten die geänderten Bedingungen NICHT andere Bewerber/Angebote ermöglicht oder weitere Teilnehmer interessiert?","Prüfung Abs. 2 Z 1."],
+["z4b","Wirtschaftliches Gleichgewicht wird NICHT unvorhergesehen zugunsten des AN verschoben?","Prüfung Abs. 2 Z 2."],
+["z4c","Vertragsumfang wird NICHT erheblich ausgeweitet oder verringert?","Prüfung Abs. 2 Z 3."],
+["z4d","Kein unzulässiger Auftragnehmerwechsel?","Prüfung Abs. 2 Z 4."]
+]],
+["Z 5 · Zusätzliche Leistungen",[
+["z5a","Zusätzliche Leistung des ursprünglichen Auftragnehmers ist erforderlich geworden?",""],
+["z5b","Leistung war in den ursprünglichen Ausschreibungsunterlagen nicht vorgesehen?",""],
+["z5c","Wechsel des Auftragnehmers kann aus wirtschaftlichen oder technischen Gründen nicht erfolgen?",""],
+["z5d","AN-Wechsel wäre mit erheblichen Schwierigkeiten oder beträchtlichen Zusatzkosten verbunden?",""]
+]],
+["Z 6 · Unvorhersehbare Umstände",[
+["z6a","Änderung wurde durch Umstände erforderlich, die ein sorgfältiger Auftraggeber nicht vorhersehen konnte?",""],
+["z6b","Gesamtcharakter des Auftrages bleibt unverändert?",""]
+]]];
+
+function z1Key(){return "bverg365_z1_"+(document.getElementById("lot").value||"none")}
+function getZ1(){try{return JSON.parse(localStorage.getItem(z1Key())||"[]")}catch(e){return []}}
+function saveZ1(a){localStorage.setItem(z1Key(),JSON.stringify(a))}
+function addZ1(){
+ let lot=document.getElementById("lot").value;if(!lot){alert("Bitte zuerst H41 oder H53 auswählen.");return}
+ let amount=moneyParse(document.getElementById("z1amount").value);if(!amount){alert("Bitte Änderungswert eingeben.");return}
+ let a=getZ1();a.push({mkf:document.getElementById("z1mkf").value,title:document.getElementById("z1title").value,amount:amount});saveZ1(a);
+ document.getElementById("z1mkf").value="";document.getElementById("z1title").value="";document.getElementById("z1amount").value="";renderZ1()
+}
+function delZ1(i){let a=getZ1();a.splice(i,1);saveZ1(a);renderZ1()}
+function renderZ1(){
+ let lot=document.getElementById("lot").value,con=document.getElementById("contract").value,a=getZ1(),sum=a.reduce((x,r)=>x+(Number(r.amount)||0),0);
+ document.getElementById("z1body").innerHTML=a.length?a.map((r,i)=>`<tr><td>${lot}</td><td>${con}</td><td>${r.mkf||""}</td><td>${r.title||""}</td><td class="num">${moneyFmt(r.amount)} €</td><td><button class="mini del" onclick="delZ1(${i})">Löschen</button></td></tr>`).join(""):`<tr><td colspan="6" class="note">Noch keine Z-1-Änderungen für ${lot||"das ausgewählte Los"} gespeichert.</td></tr>`;
+ document.getElementById("z1sum").textContent=moneyFmt(sum)+" €";document.getElementById("cum").value=moneyFmt(sum);calc()
+}
+
+function setLotDefaults(){let l=document.getElementById("lot").value;
+if(l==="H41"){document.getElementById("contract").value="B0171";document.getElementById("orig").value=moneyFmt(651037834.39);}
+else if(l==="H53"){document.getElementById("contract").value="B0182";document.getElementById("orig").value=moneyFmt(959192014.29);}
+else{document.getElementById("contract").value="";document.getElementById("orig").value="";}
+calc()}
+function lockField(id,bid){let e=document.getElementById(id),b=document.getElementById(bid);if(!e.value){alert("Bitte zuerst auswählen bzw. eingeben.");return}e.disabled=true;e.classList.add("locked");b.textContent="Fixiert ✓";b.disabled=true;localStorage.setItem("bverg365_lock_"+id,e.value);setLotDefaults()}
+function restoreLocks(){setLotDefaults()}
+
+function addZ2AuditHinweis(){
+ const p=document.getElementById("p1");
+ if(!p || document.getElementById("z2Audit")) return;
+ const box=document.createElement("div");
+ box.id="z2Audit";
+ box.className="result warn";
+ box.style.marginBottom="14px";
+ box.innerHTML=`<b>H41 / H53 – Vorgabe nach Abstimmung mit der Beschaffung</b><br>
+ Im Zuge eines CINEA-Audits wurde bei den ÖBA-Verträgen D1569/D1570 die Bestimmtheit von Vertragsänderungsklauseln thematisiert. 
+ Ziffer 2 ist <b>nicht generell ausgeschlossen</b>. Bei den bestehenden, allgemein formulierten Vertragsänderungsklauseln der Bauverträge H41/H53 soll Ziffer 2 jedoch <b>in der Regel nicht als Grundlage herangezogen werden</b>.<br><br>
+ <b>Bei Z 2 daher zusätzlich zu dokumentieren:</b><br>
+ • konkrete Vertragsklausel / Fundstelle,<br>
+ • warum Umfang und Art der möglichen Änderung ausreichend klar bestimmt sind,<br>
+ • welche Anwendungsbedingungen die Klausel festlegt,<br>
+ • warum die konkrete Änderung von dieser Klausel eindeutig erfasst ist.<br>
+ Im Zweifelsfall ist vor weiterer Bearbeitung eine Abstimmung mit der Beschaffung vorzunehmen.`;
+ const z=p.querySelector(".ztitle"); if(z) z.insertAdjacentElement("afterend",box); else p.prepend(box);
+}
+
+function build(){
+ let tabs=document.getElementById("tabs"), panels=document.getElementById("panels");
+ defs.forEach((d,i)=>{tabs.innerHTML+=`<button class="tab ${i==0?'active':''}" onclick="show(${i})">${d[0]}</button>`;
+ let qs=d[1].map(q=>`<div class="q"><div>${q[1]}<small>${q[2]}</small></div><div class="yn yn3"><input type="radio" name="${q[0]}" id="${q[0]}Y" value="yes" onchange="assess()"><label for="${q[0]}Y">○ Ja</label><input type="radio" name="${q[0]}" id="${q[0]}N" value="no" onchange="assess()"><label for="${q[0]}N">○ Nein</label><input type="radio" name="${q[0]}" id="${q[0]}X" value="na" onchange="assess()"><label for="${q[0]}X">○ Nicht relevant</label></div></div>`).join("");
+ panels.innerHTML+=`<div class="panel ${i==0?'active':''}" id="p${i}"><div class="ztitle">${d[0]}</div>${qs}<div id="r${i}" class="result">Noch nicht vollständig beurteilt.</div></div>`});
+}
+function show(i){document.querySelectorAll(".tab").forEach((x,j)=>x.classList.toggle("active",i==j));document.querySelectorAll(".panel").forEach((x,j)=>x.classList.toggle("active",i==j))}
+function basisChanged(i){
+ let r=document.querySelector('input[name="legalbasis"]:checked');
+ document.getElementById("classification").value=r?r.value:"";
+ document.querySelectorAll(".choice label").forEach((l,j)=>{let inp=l.previousElementSibling;l.textContent=(inp.checked?"● ":"○ ")+(inp.id==="basis0"?"keine Zuordnung":"Z "+inp.id.replace("basis",""))});
+ if(i>=0) show(i);
+ assess();
+}
+function moneyParse(v){if(typeof v==="number")return v;v=(v||"").toString().trim().replace(/\s/g,"").replace(/€/g,"");if(v.includes(","))v=v.replace(/\./g,"").replace(",",".");return parseFloat(v)||0}
+function moneyFmt(v){return Number(v||0).toLocaleString("de-AT",{minimumFractionDigits:2,maximumFractionDigits:2})}
+function formatMoneyField(e){if(e.value.trim()!=="")e.value=moneyFmt(moneyParse(e.value))}
+function n(id){return moneyParse(document.getElementById(id).value)}
+function indexParse(v){v=(v||"").toString().trim().replace(/\s/g,"");if(v.includes(","))v=v.replace(/\./g,"").replace(",",".");return parseFloat(v)||0}
+function formatIndexField(e){let v=indexParse(e.value);if(v)e.value=v.toLocaleString("de-AT",{minimumFractionDigits:3,maximumFractionDigits:6})}
+function calcReference(){let o=n("orig"),b=indexParse(document.getElementById("indexBase").value),c=indexParse(document.getElementById("indexCurrent").value);let f=(b>0&&c>0)?c/b:0;document.getElementById("indexFactor").value=f?f.toLocaleString("de-AT",{minimumFractionDigits:6,maximumFractionDigits:6}):"";document.getElementById("ref").value=(o&&f)?moneyFmt(o*f):""}
+function decision(){
+ const v=id=>{let e=document.querySelector('input[name="'+id+'"]:checked');return e?e.value:""};
+ let sug="", detail="";
+ // Priority follows specific statutory routes before residual Z4.
+ if(v("dA")==="yes"){sug="Z 2";detail="Änderungsklausel / Option ist vorrangig näher zu prüfen."}
+ else if(v("dB")==="yes"){sug="Z 3";detail="Auftragnehmerwechsel: Voraussetzungen von Z 3 a–c prüfen."}
+ else if(v("dC")==="yes"){sug="Z 1";detail="Wertgrenzen und unveränderter Gesamtcharakter im Detail bestätigen."}
+ else if(v("dE")==="yes"){sug="Z 5";detail="Zusätzliche Leistung sowie beide Voraussetzungen zum unmöglichen/erschwerten AN-Wechsel dokumentieren."}
+ else if(v("dF")==="yes"){sug="Z 6";detail="Unvorhersehbarkeit trotz Sorgfalt und unveränderten Gesamtcharakter dokumentieren."}
+ else if(v("dD")==="yes"){sug="Z 4";detail="Nicht-Wesentlichkeit anhand sämtlicher Kriterien des Abs. 1 und 2 dokumentieren."}
+ let el=document.getElementById("suggestion");
+ if(sug){el.className="result ok";el.innerHTML="<b>Vorschlag: § 365 Abs. 3 "+sug+"</b><br>"+detail+" Die Ziffer wird nicht automatisch angekreuzt."}
+ else {el.className="result warn";el.textContent="Noch keine eindeutige Zuordnung. Fragen vervollständigen bzw. neues Vergabeverfahren / vertiefte vergaberechtliche Prüfung prüfen."}
+}
+function calc(){calcReference();let ref=n("ref")||n("orig"),ch=n("change"),cum=n("cum"),lim=document.getElementById("type").value=="bau"?15:10;
+document.getElementById("limit").textContent=lim+" %";document.getElementById("pct").textContent=ref?(ch/ref*100).toFixed(2)+" %":"–";document.getElementById("cpct").textContent=ref?(cum/ref*100).toFixed(2)+" %":"–";document.getElementById("fifty").textContent=ref?(ref*.5).toLocaleString("de-AT",{minimumFractionDigits:2,maximumFractionDigits:2})+" €":"–";assess()}
+function assess(){let possible=[];
+ defs.forEach((d,i)=>{let vals=d[1].map(q=>{let e=document.querySelector('input[name="'+q[0]+'"]:checked');return e?e.value:""}), el=document.getElementById("r"+i), ok=vals.length&&vals.every(v=>v=="yes"||v=="na")&&vals.some(v=>v=="yes"), no=vals.some(v=>v=="no");
+ if(i==0){let ref=n("ref")||n("orig"),cum=n("cum")||n("change"),lim=document.getElementById("type").value=="bau"?.15:.10;if(ref&&cum/ref>lim) no=true,ok=false}
+ if((i==4||i==5)){let ref=n("ref")||n("orig");if(ref&&n("change")/ref>.5){no=true;ok=false}}
+ el.className="result "+(ok?"ok":no?"bad":"warn");el.textContent=ok?"Eingaben sprechen für die Erfüllung dieser Prüfkriterien.":no?"Mindestens ein Prüfkriterium ist nicht erfüllt.":"Prüfung noch nicht vollständig.";if(ok)possible.push("Z "+(i+1))});
+ let o=document.getElementById("overall");o.className="result "+(possible.length?"ok":"warn");o.textContent=possible.length?"Nach den Eingaben kommen folgende Tatbestände in Betracht: "+possible.join(", ")+". Abschließende vergaberechtliche Prüfung/Freigabe erforderlich.":"Derzeit ergibt sich noch keine vollständig positiv beantwortete Ziffer."}
+function fields(){return [...document.querySelectorAll("input:not([type=file]),select,textarea")]}
+function data(){let x={};fields().forEach(e=>x[e.id]=e.value);let r=document.querySelector('input[name="legalbasis"]:checked');x.legalbasis=r?r.id:"";["dA","dB","dC","dD","dE","dF"].forEach(n=>{let q=document.querySelector('input[name="'+n+'"]:checked');x[n]=q?q.value:""});return x}
+function apply(x){fields().forEach(e=>{if(x[e.id]!==undefined)e.value=x[e.id]});if(x.legalbasis&&document.getElementById(x.legalbasis)){document.getElementById(x.legalbasis).checked=true;basisChanged(x.legalbasis==="basis0"?-1:parseInt(x.legalbasis.replace("basis",""))-1)}calc()}
+function save(){localStorage.setItem("bverg365",JSON.stringify(data()));alert("Lokal im Browser gespeichert.")}
+function load(){let x=localStorage.getItem("bverg365");if(x)apply(JSON.parse(x));else alert("Kein gespeicherter Stand vorhanden.")}
+function exportJSON(){let b=new Blob([JSON.stringify(data(),null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="BVerg365_"+(document.getElementById("mkf").value||"Pruefung")+".json";a.click();URL.revokeObjectURL(a.href)}
+function importJSON(e){let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>apply(JSON.parse(r.result));r.readAsText(f)}
+function resetAll(){if(confirm("Neue Prüfung starten? Nicht gespeicherte Eingaben gehen verloren.")){fields().forEach(e=>e.value="");document.querySelectorAll('input[name="legalbasis"]').forEach(e=>e.checked=false);document.getElementById("type").value="bau";document.getElementById("upper").value="yes";decision();calc()}}
+build();addZ2AuditHinweis();restoreLocks();renderZ1();calc();
+</script></body></html>
