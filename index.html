@@ -97,17 +97,18 @@ Die in diesem Prüftool erfassten Z-1-Vertragsänderungen werden <b>netto saldie
 </div>
 <div class="tabs" id="tabs"></div><div id="panels"></div></section>
 
-<section class="card"><h2>5 · Gesamtbeurteilung und Freigabe</h2>
+<section class="card"><h2>5 · Gesamtbeurteilung durch die Projektleitung</h2>
+<div class="result warn" style="margin-bottom:14px"><b>Prüfung durch die Projektleitung</b><br>Die nachfolgende Gesamtbeurteilung dokumentiert die vergaberechtliche Ersteinschätzung der Projektleitung. Die abschließende Prüfung der gewählten vergaberechtlichen Grundlage erfolgt nochmals durch die <b>Abteilung Beschaffung</b>.</div>
 <div id="overall" class="result">Bitte Prüffragen beantworten.</div><br>
 <div class="grid g2"><div><label>Begründung / Sachverhalt</label><textarea id="reason"></textarea></div><div><label>Offene Prüfpunkte / erforderliche Nachweise</label><textarea id="open"></textarea></div></div>
 <br><div class="grid">
 <div><label>Gewählte Einordnung</label><input id="classification" readonly placeholder="Auswahl oben treffen"></div>
-<div><label>Vergaberechtliche Prüfung / Freigabe</label><select id="approval"><option>offen</option><option>in Prüfung</option><option>erfolgt</option></select></div>
-<div><label>Prüfer/in</label><input id="reviewer"></div><div><label>Datum Prüfung</label><input id="reviewdate" type="date"></div>
+<div><label>Status Ersteinschätzung Projektleitung</label><select id="approval"><option>offen</option><option>in Bearbeitung</option><option>abgeschlossen – Weiterleitung an Beschaffung</option></select></div>
+<div><label>Projektleitung / Bearbeiter/in</label><input id="reviewer"></div><div><label>Datum Ersteinschätzung</label><input id="reviewdate" type="date"></div>
 </div></section>
 
 <section class="card"><div class="actions"><button class="btn" onclick="save()">Lokal speichern</button><button class="btn alt" onclick="load()">Gespeicherten Stand laden</button><button class="btn alt" onclick="exportJSON()">JSON exportieren</button><button class="btn alt" onclick="document.getElementById('imp').click()">JSON importieren</button><input id="imp" type="file" accept=".json" hidden onchange="importJSON(event)"><button class="btn" onclick="window.print()">A4 / Drucken</button><button class="btn alt" onclick="resetAll()">Neu</button></div>
-<p class="note">Interne Entscheidungshilfe, keine automatisierte Rechtsfreigabe. Das Ergebnis beruht ausschließlich auf den eingegebenen Angaben. Bei Z 5/6 ist im Oberschwellenbereich die Bekanntgabe nach § 365 Abs. 4 gesondert zu beachten.</p></section>
+<p class="note">Interne Entscheidungshilfe für die Ersteinschätzung durch die Projektleitung. Die abschließende vergaberechtliche Prüfung erfolgt durch die Abteilung Beschaffung. Das Ergebnis beruht ausschließlich auf den eingegebenen Angaben. Bei Z 5/6 ist im Oberschwellenbereich die Bekanntgabe nach § 365 Abs. 4 gesondert zu beachten.</p></section>
 </main>
 <script>
 const defs=[
