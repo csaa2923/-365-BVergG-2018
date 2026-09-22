@@ -26,6 +26,7 @@ textarea{min-height:90px;resize:vertical}.locked,input[readonly]{background:#f0f
 .result{padding:13px 15px;border-radius:8px;background:#edf2f5;border-left:5px solid #9babb5;font-weight:650}.ok{background:var(--ok);border-left-color:var(--okb)}.warn{background:var(--warn);border-left-color:var(--warnb)}.bad{background:var(--bad);border-left-color:var(--badb)}
 .singlechoice{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 5px}.choice{position:relative}.choice input{position:absolute;opacity:0;pointer-events:none}.choice label{display:block;margin:0;padding:9px 14px;border:1px solid #aebdc7;border-radius:20px;background:#fff;cursor:pointer;font-size:13px}.choice input:checked+label{border-color:var(--navy);background:var(--navy);color:#fff}
 .z1table{width:100%;border-collapse:separate;border-spacing:0;margin-top:16px;border:1px solid var(--line);border-radius:9px;overflow:hidden}.z1table th,.z1table td{padding:10px 11px;text-align:left;border-bottom:1px solid #e4eaee}.z1table th{background:#eaf0f4;color:var(--navy);font-size:12px}.z1table tbody tr:hover{background:#f7fafb}.z1table tr:last-child td,.z1table tfoot tr:last-child th{border-bottom:0}.z1table td.num,.z1table th.num{text-align:right;white-space:nowrap}.z1table tfoot th{background:#f0f5f7;font-size:13px}
+.savedlist{margin-top:14px;border:1px solid var(--line);border-radius:9px;overflow:hidden}.savedrow{display:grid;grid-template-columns:110px 110px 1fr 150px 210px;gap:10px;align-items:center;padding:10px 12px;border-bottom:1px solid #e4eaee;background:#fff}.savedrow:last-child{border-bottom:0}.savedrow.head{background:#eaf0f4;color:var(--navy);font-size:12px;font-weight:800}.savedrow .meta{font-size:12px;color:var(--muted)}.savedactions{display:flex;gap:6px;justify-content:flex-end}.savedactions button{padding:6px 9px;border:0;border-radius:5px;cursor:pointer;font-weight:650}.openbtn{background:var(--navy);color:#fff}.deletebtn{background:#f6dfe1;color:#8c343b}@media(max-width:800px){.savedrow{grid-template-columns:1fr 1fr}.savedrow.head{display:none}.savedactions{justify-content:flex-start;grid-column:1/-1}}
 .actions{display:flex;gap:9px;flex-wrap:wrap}.btn,.lockbtn{border:0;border-radius:7px;padding:10px 14px;background:var(--navy);color:#fff;cursor:pointer;font-weight:650;box-shadow:0 1px 3px rgba(0,0,0,.08)}.btn:hover,.lockbtn:hover{filter:brightness(1.08)}.btn.alt{background:#657985}.mini{padding:6px 9px;border:0;border-radius:5px;cursor:pointer}.del{background:#f6dfe1;color:#8c343b}
 .lockrow{display:flex;gap:7px}.lockrow input,.lockrow select{flex:1}.lockbtn{width:auto;white-space:nowrap;background:#657985}
 #suggestion{margin-top:14px}.sectionhint{margin:-8px 0 15px}
@@ -126,8 +127,11 @@ Die in diesem Prüftool erfassten Z-1-Vertragsänderungen werden <b>netto saldie
 <div><label>Projektleitung / Bearbeiter/in</label><input id="reviewer"></div><div><label>Datum Ersteinschätzung</label><input id="reviewdate" type="date"></div>
 </div></section>
 
-<section class="card"><div class="actions"><button class="btn" onclick="save()">Lokal speichern</button><button class="btn alt" onclick="load()">Gespeicherten Stand laden</button><button class="btn alt" onclick="exportJSON()">JSON exportieren</button><button class="btn alt" onclick="document.getElementById('imp').click()">JSON importieren</button><input id="imp" type="file" accept=".json" hidden onchange="importJSON(event)"><button class="btn" onclick="printAssessment()">A4 / Drucken</button><button class="btn alt" onclick="resetAll()">Neu</button></div>
-<p class="note">Interne Entscheidungshilfe für die Ersteinschätzung durch die Projektleitung. Die abschließende vergaberechtliche Prüfung erfolgt durch die Abteilung Beschaffung. Das Ergebnis beruht ausschließlich auf den eingegebenen Angaben. Bei Z 5/6 ist im Oberschwellenbereich die Bekanntgabe nach § 365 Abs. 4 gesondert zu beachten.</p></section>
+<section class="card"><h2>6 · Gespeicherte Prüfungen</h2>
+<p class="note">Abgeschlossene oder noch in Bearbeitung befindliche Prüfungen können lokal in diesem Browser gespeichert, später wieder aufgerufen und bei Bedarf gelöscht werden.</p>
+<div class="actions"><button class="btn" onclick="saveAssessment()">Aktuellen Eintrag lokal speichern</button><button class="btn alt" onclick="exportJSON()">JSON exportieren</button><button class="btn alt" onclick="document.getElementById('imp').click()">JSON importieren</button><input id="imp" type="file" accept=".json" hidden onchange="importJSON(event)"><button class="btn" onclick="printAssessment()">A4 / Drucken</button><button class="btn alt" onclick="resetAll()">Neue Prüfung</button></div>
+<div id="savedAssessments" class="savedlist"></div>
+<p class="note">Die lokalen Einträge werden ausschließlich im aktuell verwendeten Browser gespeichert. Interne Entscheidungshilfe für die Ersteinschätzung durch die Projektleitung. Die abschließende vergaberechtliche Prüfung erfolgt durch die Abteilung Beschaffung. Das Ergebnis beruht ausschließlich auf den eingegebenen Angaben. Bei Z 5/6 ist im Oberschwellenbereich die Bekanntgabe nach § 365 Abs. 4 gesondert zu beachten.</p></section>
 </main><div id="printFooter"><span id="printStamp"></span><span class="pageCounter"></span></div>
 <script>
 const defs=[
@@ -261,8 +265,8 @@ function assess(){let possible=[];
  el.className="result "+(ok?"ok":no?"bad":"warn");el.textContent=ok?"Eingaben sprechen für die Erfüllung dieser Prüfkriterien.":no?"Mindestens ein Prüfkriterium ist nicht erfüllt.":"Prüfung noch nicht vollständig.";if(ok)possible.push("Z "+(i+1))});
  let o=document.getElementById("overall");o.className="result "+(possible.length?"ok":"warn");o.textContent=possible.length?"Nach den Eingaben kommen folgende Tatbestände in Betracht: "+possible.join(", ")+". Abschließende vergaberechtliche Prüfung/Freigabe erforderlich.":"Derzeit ergibt sich noch keine vollständig positiv beantwortete Ziffer."}
 function fields(){return [...document.querySelectorAll("input:not([type=file]),select,textarea")]}
-function data(){let x={};fields().forEach(e=>x[e.id]=e.value);let r=document.querySelector('input[name="legalbasis"]:checked');x.legalbasis=r?r.id:"";["dA","dB","dC","dD","dE","dF"].forEach(n=>{let q=document.querySelector('input[name="'+n+'"]:checked');x[n]=q?q.value:""});return x}
-function apply(x){fields().forEach(e=>{if(x[e.id]!==undefined)e.value=x[e.id]});if(x.legalbasis&&document.getElementById(x.legalbasis)){document.getElementById(x.legalbasis).checked=true;basisChanged(x.legalbasis==="basis0"?-1:parseInt(x.legalbasis.replace("basis",""))-1)}calc()}
+function data(){let x={};fields().forEach(e=>x[e.id]=e.value);x._assessmentId=window.currentAssessmentId||"";let r=document.querySelector('input[name="legalbasis"]:checked');x.legalbasis=r?r.id:"";["dA","dB","dC","dD","dE","dF"].forEach(n=>{let q=document.querySelector('input[name="'+n+'"]:checked');x[n]=q?q.value:""});return x}
+function apply(x){fields().forEach(e=>{if(x[e.id]!==undefined)e.value=x[e.id]});setLotDefaults();fields().forEach(e=>{if(x[e.id]!==undefined)e.value=x[e.id]});["dA","dB","dC","dD","dE","dF"].forEach(n=>{document.querySelectorAll('input[name="'+n+'"]').forEach(q=>q.checked=(q.value===x[n]))});defs.flatMap(d=>d[1]).forEach(q=>{document.querySelectorAll('input[name="'+q[0]+'"]').forEach(e=>e.checked=(e.value===x[q[0]]))});if(x.legalbasis&&document.getElementById(x.legalbasis)){document.getElementById(x.legalbasis).checked=true;basisChanged(x.legalbasis==="basis0"?-1:parseInt(x.legalbasis.replace("basis",""))-1)}calc()}
 function preparePrint(){
  let d=new Date();document.getElementById("printStamp").textContent="Ausdruck: "+d.toLocaleDateString("de-AT")+" · "+d.toLocaleTimeString("de-AT",{hour:"2-digit",minute:"2-digit"})+" Uhr";
  let r=document.querySelector('input[name="legalbasis"]:checked');
@@ -279,10 +283,28 @@ function preparePrint(){
 function cleanupPrint(){document.querySelectorAll(".print-hide").forEach(e=>e.classList.remove("print-hide"));document.querySelectorAll(".print-selected").forEach(e=>e.classList.remove("print-selected"))}
 window.addEventListener("beforeprint",preparePrint);window.addEventListener("afterprint",cleanupPrint);
 function printAssessment(){preparePrint();window.print()}
-function save(){localStorage.setItem("bverg365",JSON.stringify(data()));alert("Lokal im Browser gespeichert.")}
+function assessmentStore(){try{return JSON.parse(localStorage.getItem("bverg365_assessments")||"[]")}catch(e){return []}}
+function assessmentLabel(x){let lot=x.lot==="OTHER"?(x.lotOther||"Anderes Los"):(x.lot||"–");return {lot:lot,mkf:x.mkf||"–",title:x.title||"Ohne Bezeichnung"}}
+function saveAssessment(){
+ let x=data(),list=assessmentStore(),id=x._assessmentId||("P"+Date.now()),now=new Date().toISOString();
+ x._assessmentId=id;x._savedAt=now;
+ let i=list.findIndex(v=>v._assessmentId===id);if(i>=0)list[i]=x;else list.unshift(x);
+ localStorage.setItem("bverg365_assessments",JSON.stringify(list));
+ window.currentAssessmentId=id;renderAssessments();alert(i>=0?"Eintrag aktualisiert.":"Eintrag lokal gespeichert.");
+}
+function renderAssessments(){
+ let box=document.getElementById("savedAssessments");if(!box)return;let list=assessmentStore();
+ if(!list.length){box.innerHTML='<div class="savedrow"><span class="note">Noch keine Prüfungen lokal gespeichert.</span></div>';return}
+ box.innerHTML='<div class="savedrow head"><span>Los</span><span>MKF</span><span>Bezeichnung</span><span>Gespeichert</span><span></span></div>'+
+ list.map(x=>{let a=assessmentLabel(x),d=x._savedAt?new Date(x._savedAt).toLocaleString("de-AT",{dateStyle:"short",timeStyle:"short"}):"–";return '<div class="savedrow"><b>'+esc(a.lot)+'</b><span>'+esc(a.mkf)+'</span><span>'+esc(a.title)+'</span><span class="meta">'+esc(d)+'</span><span class="savedactions"><button class="openbtn" onclick="openAssessment(\''+x._assessmentId+'\')">Aufrufen</button><button class="deletebtn" onclick="deleteAssessment(\''+x._assessmentId+'\')">Löschen</button></span></div>'}).join("");
+}
+function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
+function openAssessment(id){let x=assessmentStore().find(v=>v._assessmentId===id);if(!x)return;apply(x);window.currentAssessmentId=id;window.scrollTo({top:0,behavior:"smooth"})}
+function deleteAssessment(id){if(!confirm("Gespeicherten Eintrag wirklich löschen?"))return;let list=assessmentStore().filter(v=>v._assessmentId!==id);localStorage.setItem("bverg365_assessments",JSON.stringify(list));if(window.currentAssessmentId===id)window.currentAssessmentId="";renderAssessments()}
+function save(){saveAssessment()}
 function load(){let x=localStorage.getItem("bverg365");if(x)apply(JSON.parse(x));else alert("Kein gespeicherter Stand vorhanden.")}
 function exportJSON(){let b=new Blob([JSON.stringify(data(),null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="BVerg365_"+(document.getElementById("mkf").value||"Pruefung")+".json";a.click();URL.revokeObjectURL(a.href)}
 function importJSON(e){let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>apply(JSON.parse(r.result));r.readAsText(f)}
-function resetAll(){if(confirm("Neue Prüfung starten? Nicht gespeicherte Eingaben gehen verloren.")){fields().forEach(e=>e.value="");document.querySelectorAll('input[name="legalbasis"]').forEach(e=>e.checked=false);document.getElementById("type").value="bau";document.getElementById("upper").value="yes";decision();calc()}}
-build();addZ2AuditHinweis();restoreLocks();renderZ1();calc();
+function resetAll(){if(confirm("Neue Prüfung starten? Nicht gespeicherte Eingaben gehen verloren.")){window.currentAssessmentId="";fields().forEach(e=>e.value="");document.querySelectorAll('input[name="legalbasis"]').forEach(e=>e.checked=false);document.getElementById("type").value="bau";document.getElementById("upper").value="yes";decision();calc()}}
+build();addZ2AuditHinweis();restoreLocks();renderZ1();calc();renderAssessments();
 </script></body></html>
