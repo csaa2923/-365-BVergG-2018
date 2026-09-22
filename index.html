@@ -59,7 +59,7 @@ h2{margin:0 0 10px;padding:0 0 6px}
 <div class="card" style="padding:12px 18px"><div class="note"><b style="color:var(--navy)">Ablauf:</b> Los wählen → Index-/Wertbasis festlegen → Z-1-Änderungen erfassen → Checkliste beantworten → Rechtsgrundlage auswählen → Beurteilung dokumentieren.</div></div><section class="card"><h2>1 · Vorgang</h2><div class="grid">
 <div><label>Los</label><select id="lot" onchange="setLotDefaults();renderZ1()"><option value="">– Los auswählen –</option><option value="H41">H41</option><option value="H53">H53</option><option value="OTHER">Anderes Los – händisch</option></select><input id="lotOther" style="display:none;margin-top:7px" placeholder="Losbezeichnung händisch eingeben" oninput="renderZ1()"></div>
 <div><label>Vertrag</label><input id="contract" class="locked" readonly placeholder="wird automatisch bzw. händisch eingetragen"></div>
-<div><label>MKF / Änderung</label><input id="mkf"></div><div><label>Datum</label><input id="date" type="date"></div>
+<div><label>MKF / Änderung</label><input id="mkf" placeholder="z. B. 001" onblur="normalizeMkfField(this)"><small class="note">MKF-Nummer wird automatisch dreistellig dargestellt.</small></div><div><label>Datum</label><input id="date" type="date"></div>
 <div style="grid-column:span 2"><label>Bezeichnung der Änderung</label><input id="title"></div>
 <div><label>Auftragsart</label><select id="type" onchange="calc()"><option value="bau">Bauauftrag</option><option value="dl">Dienst-/Lieferauftrag</option></select><small class="note" id="typeNote">Bei H41/H53 automatisch Bauauftrag.</small></div>
 <div><label>Oberschwellenbereich?</label><select id="upper"><option value="yes">Ja</option><option value="no">Nein</option></select></div>
@@ -85,7 +85,7 @@ Die Auftragssumme ist die Bezugsgröße für die gesetzlichen Wertgrenzen. Bei <
 <div class="result warn" style="margin-bottom:14px"><b>Berechnungslogik Z 1 – 15-%-Grenze</b><br>
 Die in diesem Prüftool erfassten Z-1-Vertragsänderungen werden <b>netto saldiert</b>. Positive Beauftragungen erhöhen den kumulierten Z-1-Wert; <b>negative Beauftragungen bzw. Minderungen reduzieren ihn wieder</b> und damit die Ausschöpfung der 15-%-Grenze. Diese Saldierung ist die für dieses Prüftool verwendete Berechnungsmethodik. In Zweifelsfällen ist die konkrete vergaberechtliche Behandlung mit Beschaffung/Rechtsabteilung abzustimmen.</div>
 <div class="grid">
-<div><label>MKF / Änderung</label><input id="z1mkf" placeholder="z. B. MKF 045"></div>
+<div><label>MKF / Änderung</label><input id="z1mkf" placeholder="z. B. 001" onblur="normalizeMkfField(this)"></div>
 <div style="grid-column:span 2"><label>Bezeichnung</label><input id="z1title"></div>
 <div><label>Änderungswert netto (€)</label><input id="z1amount" type="text" inputmode="decimal" onblur="formatMoneyField(this)" placeholder="0,00"></div>
 </div><br>
@@ -166,6 +166,9 @@ const defs=[
 ["z6b","Gesamtcharakter des Auftrages bleibt unverändert?",""]
 ]]];
 
+function mkfNumber(v){let m=String(v||"").match(/\d+/);return m?parseInt(m[0],10):999999}
+function mkfFmt(v){let m=String(v||"").match(/\d+/);return m?String(parseInt(m[0],10)).padStart(3,"0"):String(v||"").trim()}
+function normalizeMkfField(e){if(e.value.trim())e.value=mkfFmt(e.value)}
 function lotName(){let l=document.getElementById("lot").value;return l==="OTHER"?(document.getElementById("lotOther").value.trim()||"OTHER"):l}
 function z1Key(){return "bverg365_z1_"+(lotName()||"none")}
 function getZ1(){try{return JSON.parse(localStorage.getItem(z1Key())||"[]")}catch(e){return []}}
@@ -173,12 +176,12 @@ function saveZ1(a){localStorage.setItem(z1Key(),JSON.stringify(a))}
 function addZ1(){
  let lot=lotName();if(!lot){alert("Bitte zuerst ein Los auswählen bzw. eingeben.");return}
  let amount=moneyParse(document.getElementById("z1amount").value);if(!amount){alert("Bitte Änderungswert eingeben.");return}
- let a=getZ1();a.push({mkf:document.getElementById("z1mkf").value,title:document.getElementById("z1title").value,amount:amount});saveZ1(a);
+ let a=getZ1();a.push({mkf:mkfFmt(document.getElementById("z1mkf").value),title:document.getElementById("z1title").value,amount:amount});a.sort((x,y)=>mkfNumber(x.mkf)-mkfNumber(y.mkf));saveZ1(a);
  document.getElementById("z1mkf").value="";document.getElementById("z1title").value="";document.getElementById("z1amount").value="";renderZ1()
 }
 function delZ1(i){let a=getZ1();a.splice(i,1);saveZ1(a);renderZ1()}
 function renderZ1(){
- let lot=lotName(),con=document.getElementById("contract").value,a=getZ1(),sum=a.reduce((x,r)=>x+(Number(r.amount)||0),0);
+ let lot=lotName(),con=document.getElementById("contract").value,a=getZ1().sort((x,y)=>mkfNumber(x.mkf)-mkfNumber(y.mkf)),sum=a.reduce((x,r)=>x+(Number(r.amount)||0),0);
  document.getElementById("z1body").innerHTML=a.length?a.map((r,i)=>`<tr><td>${lot}</td><td>${con}</td><td>${r.mkf||""}</td><td>${r.title||""}</td><td class="num">${moneyFmt(r.amount)} €</td><td><button class="mini del" onclick="delZ1(${i})">Löschen</button></td></tr>`).join(""):`<tr><td colspan="6" class="note">Noch keine Z-1-Änderungen für ${lot||"das ausgewählte Los"} gespeichert.</td></tr>`;
  document.getElementById("z1sum").textContent=moneyFmt(sum)+" €";document.getElementById("cum").value=moneyFmt(sum);calc()
 }
@@ -225,6 +228,7 @@ function basisChanged(i){
  document.getElementById("classification").value=r?r.value:"";
  document.querySelectorAll(".choice label").forEach((l,j)=>{let inp=l.previousElementSibling;l.textContent=(inp.checked?"● ":"○ ")+(inp.id==="basis0"?"keine Zuordnung":"Z "+inp.id.replace("basis",""))});
  if(i>=0)show(i);else document.querySelectorAll(".panel").forEach(x=>x.classList.remove("active"));
+ if(i===0)syncCurrentToZ1();
  assess();updateBasisHint();
 }
 function moneyParse(v){if(typeof v==="number")return v;v=(v||"").toString().trim().replace(/\s/g,"").replace(/€/g,"");if(v.includes(","))v=v.replace(/\./g,"").replace(",",".");return parseFloat(v)||0}
@@ -284,8 +288,18 @@ function cleanupPrint(){document.querySelectorAll(".print-hide").forEach(e=>e.cl
 window.addEventListener("beforeprint",preparePrint);window.addEventListener("afterprint",cleanupPrint);
 function printAssessment(){preparePrint();window.print()}
 function assessmentStore(){try{return JSON.parse(localStorage.getItem("bverg365_assessments")||"[]")}catch(e){return []}}
-function assessmentLabel(x){let lot=x.lot==="OTHER"?(x.lotOther||"Anderes Los"):(x.lot||"–");return {lot:lot,mkf:x.mkf||"–",title:x.title||"Ohne Bezeichnung"}}
+function assessmentLabel(x){let lot=x.lot==="OTHER"?(x.lotOther||"Anderes Los"):(x.lot||"–");return {lot:lot,mkf:x.mkf?mkfFmt(x.mkf):"–",title:x.title||"Ohne Bezeichnung"}}
+function syncCurrentToZ1(){
+ let basis=document.querySelector('input[name="legalbasis"]:checked');if(!basis||basis.id!=="basis1")return;
+ let lot=lotName(),mkf=mkfFmt(document.getElementById("mkf").value),title=document.getElementById("title").value,amount=n("change");
+ if(!lot||!mkf||!amount)return;
+ let a=getZ1(),key=window.currentAssessmentId||("MKF_"+mkf),i=a.findIndex(r=>r.assessmentId===key||mkfFmt(r.mkf)===mkf);
+ let row={assessmentId:key,mkf:mkf,title:title,amount:amount};
+ if(i>=0)a[i]=row;else a.push(row);
+ a.sort((x,y)=>mkfNumber(x.mkf)-mkfNumber(y.mkf));saveZ1(a);renderZ1();
+}
 function saveAssessment(){
+ normalizeMkfField(document.getElementById("mkf"));syncCurrentToZ1();
  let x=data(),list=assessmentStore(),id=x._assessmentId||("P"+Date.now()),now=new Date().toISOString();
  x._assessmentId=id;x._savedAt=now;
  let i=list.findIndex(v=>v._assessmentId===id);if(i>=0)list[i]=x;else list.unshift(x);
@@ -293,7 +307,7 @@ function saveAssessment(){
  window.currentAssessmentId=id;renderAssessments();alert(i>=0?"Eintrag aktualisiert.":"Eintrag lokal gespeichert.");
 }
 function renderAssessments(){
- let box=document.getElementById("savedAssessments");if(!box)return;let list=assessmentStore();
+ let box=document.getElementById("savedAssessments");if(!box)return;let list=assessmentStore().sort((a,b)=>mkfNumber(a.mkf)-mkfNumber(b.mkf));
  if(!list.length){box.innerHTML='<div class="savedrow"><span class="note">Noch keine Prüfungen lokal gespeichert.</span></div>';return}
  box.innerHTML='<div class="savedrow head"><span>Los</span><span>MKF</span><span>Bezeichnung</span><span>Gespeichert</span><span></span></div>'+
  list.map(x=>{let a=assessmentLabel(x),d=x._savedAt?new Date(x._savedAt).toLocaleString("de-AT",{dateStyle:"short",timeStyle:"short"}):"–";return '<div class="savedrow"><b>'+esc(a.lot)+'</b><span>'+esc(a.mkf)+'</span><span>'+esc(a.title)+'</span><span class="meta">'+esc(d)+'</span><span class="savedactions"><button class="openbtn" onclick="openAssessment(\''+x._assessmentId+'\')">Aufrufen</button><button class="deletebtn" onclick="deleteAssessment(\''+x._assessmentId+'\')">Löschen</button></span></div>'}).join("");
