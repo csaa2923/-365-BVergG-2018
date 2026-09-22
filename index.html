@@ -41,7 +41,7 @@ textarea{min-height:90px;resize:vertical}.locked,input[readonly]{background:#f0f
 <div><label>Vertrag</label><input id="contract" class="locked" readonly placeholder="wird automatisch bzw. händisch eingetragen"></div>
 <div><label>MKF / Änderung</label><input id="mkf"></div><div><label>Datum</label><input id="date" type="date"></div>
 <div style="grid-column:span 2"><label>Bezeichnung der Änderung</label><input id="title"></div>
-<div><label>Auftragsart</label><select id="type" onchange="calc()"><option value="bau">Bauauftrag</option><option value="dl">Dienst-/Lieferauftrag</option></select></div>
+<div><label>Auftragsart</label><select id="type" onchange="calc()"><option value="bau">Bauauftrag</option><option value="dl">Dienst-/Lieferauftrag</option></select><small class="note" id="typeNote">Bei H41/H53 automatisch Bauauftrag.</small></div>
 <div><label>Oberschwellenbereich?</label><select id="upper"><option value="yes">Ja</option><option value="no">Nein</option></select></div>
 </div></section>
 
@@ -159,8 +159,9 @@ function renderZ1(){
  document.getElementById("z1sum").textContent=moneyFmt(sum)+" €";document.getElementById("cum").value=moneyFmt(sum);calc()
 }
 
-function setLotDefaults(){let l=document.getElementById("lot").value,co=document.getElementById("contract"),o=document.getElementById("orig"),lo=document.getElementById("lotOther");
+function setLotDefaults(){let l=document.getElementById("lot").value,co=document.getElementById("contract"),o=document.getElementById("orig"),lo=document.getElementById("lotOther"),ty=document.getElementById("type");
 lo.style.display=l==="OTHER"?"block":"none";
+if(l==="H41"||l==="H53"){ty.value="bau";ty.disabled=true;ty.classList.add("locked");}else{ty.disabled=false;ty.classList.remove("locked");}
 if(l==="H41"){co.value="B0171";o.value=moneyFmt(651037834.39);co.readOnly=true;o.readOnly=true;co.classList.add("locked");o.classList.add("locked");}
 else if(l==="H53"){co.value="B0182";o.value=moneyFmt(959192014.29);co.readOnly=true;o.readOnly=true;co.classList.add("locked");o.classList.add("locked");}
 else if(l==="OTHER"){co.value="";o.value="";co.readOnly=false;o.readOnly=false;co.classList.remove("locked");o.classList.remove("locked");}
