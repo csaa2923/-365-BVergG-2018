@@ -141,8 +141,11 @@ Die in diesem Prüftool erfassten Z-1-Vertragsänderungen werden <b>netto saldie
 
 <section class="card no-print"><h2>6 · Gespeicherte Prüfungen</h2>
 <p class="note">Prüfungen können weiterhin lokal im Browser gespeichert werden. Zusätzlich kann ein gemeinsamer Ordner – z. B. auf einem eingebundenen Netzlaufwerk – als Speicherort gewählt werden. Bei unterstützten Browsern wird der aktuelle Vorgang anschließend automatisch als JSON-Datei in diesem Ordner gespeichert.</p>
-<div class="result" id="folderStatus" style="margin-bottom:12px"><b>Gemeinsamer Speicherort:</b> nicht ausgewählt</div>
-<div class="actions"><button class="btn" onclick="chooseSharedFolder()">Speicherort auswählen</button><button class="btn alt" onclick="saveToSharedFolder(true)">Jetzt im Ordner speichern</button><button class="btn" onclick="saveAssessment()">Aktuellen Eintrag lokal speichern</button><button class="btn alt" onclick="exportJSON()">JSON exportieren</button><button class="btn alt" onclick="document.getElementById('imp').click()">JSON importieren</button><input id="imp" type="file" accept=".json" hidden onchange="importJSON(event)"><button class="btn" onclick="printAssessment()">A4 / Drucken</button><button class="btn alt" onclick="resetAll()">Neue Prüfung</button></div>
+<div class="grid g2" style="margin-bottom:12px">
+<div class="result" id="folderStatusH41"><b>H41 Speicherort:</b> nicht ausgewählt<br><button class="mini" style="margin-top:7px" onclick="chooseSharedFolder('H41')">H41-Ordner auswählen</button></div>
+<div class="result" id="folderStatusH53"><b>H53 Speicherort:</b> nicht ausgewählt<br><button class="mini" style="margin-top:7px" onclick="chooseSharedFolder('H53')">H53-Ordner auswählen</button></div>
+</div>
+<div class="actions"><button class="btn alt" onclick="saveToSharedFolder(true)">Aktuelles Los jetzt speichern</button><button class="btn" onclick="saveAssessment()">Aktuellen Eintrag lokal speichern</button><button class="btn alt" onclick="exportJSON()">JSON exportieren</button><button class="btn alt" onclick="document.getElementById('imp').click()">JSON importieren</button><input id="imp" type="file" accept=".json" hidden onchange="importJSON(event)"><button class="btn" onclick="printAssessment()">A4 / Drucken</button><button class="btn alt" onclick="resetAll()">Neue Prüfung</button></div>
 <div id="sharedAssessments" class="savedlist" style="margin-bottom:12px"></div><div id="savedAssessments" class="savedlist"></div>
 <p class="note">Die lokalen Einträge werden ausschließlich im aktuell verwendeten Browser gespeichert. Interne Entscheidungshilfe für die Ersteinschätzung durch die Projektleitung. Die abschließende vergaberechtliche Prüfung erfolgt durch die Abteilung Beschaffung. Das Ergebnis beruht ausschließlich auf den eingegebenen Angaben. Bei Z 5/6 ist im Oberschwellenbereich die Bekanntgabe nach § 365 Abs. 4 gesondert zu beachten.</p></section>
 </main><div id="printFooter"><span id="printStamp"></span><span class="pageCounter"></span></div>
@@ -308,84 +311,72 @@ function preparePrint(){
 function cleanupPrint(){document.querySelectorAll(".print-hide").forEach(e=>e.classList.remove("print-hide"));document.querySelectorAll(".print-selected").forEach(e=>e.classList.remove("print-selected"))}
 window.addEventListener("beforeprint",preparePrint);window.addEventListener("afterprint",cleanupPrint);
 function printAssessment(){preparePrint();window.print()}
-let sharedDirHandle=null, sharedSaveTimer=null, sharedRefreshTimer=null, sharedAssessments=[], sharedOpenedFile="", sharedOpenedModified=0, sharedDirty=false;
+let sharedDirs={H41:null,H53:null}, sharedSaveTimer=null, sharedRefreshTimer=null, sharedAssessments=[], sharedOpenedFile="", sharedOpenedModified=0, sharedOpenedLot="", sharedDirty=false;
 function folderSupported(){return typeof window.showDirectoryPicker==="function"}
-function folderStatus(msg,cls){
- let e=document.getElementById("folderStatus");if(!e)return;
- e.className="result "+(cls||"");e.innerHTML="<b>Gemeinsamer Speicherort:</b> "+msg;
+function activeSharedLot(){let l=document.getElementById("lot").value;return l==="H41"||l==="H53"?l:""}
+function activeSharedDir(){return sharedDirs[activeSharedLot()]||null}
+function folderStatus(lot,msg,cls){
+ let e=document.getElementById("folderStatus"+lot);if(!e)return;
+ e.className="result "+(cls||"");e.innerHTML="<b>"+lot+" Speicherort:</b> "+msg+'<br><button class="mini" style="margin-top:7px" onclick="chooseSharedFolder(\''+lot+'\')">'+lot+'-Ordner auswählen</button>';
 }
-async function chooseSharedFolder(){
- if(!folderSupported()){folderStatus("Ordnerzugriff wird von diesem Browser nicht unterstützt. Bitte einen Chromium-basierten Desktop-Browser verwenden.","warn");return}
+async function chooseSharedFolder(lot){
+ if(!folderSupported()){folderStatus(lot,"Ordnerzugriff wird von diesem Browser nicht unterstützt.","warn");return}
  try{
-  sharedDirHandle=await window.showDirectoryPicker({mode:"readwrite"});
-  folderStatus(esc(sharedDirHandle.name)+" · verbunden · gemeinsame Liste wird automatisch aktualisiert","ok");
-  await refreshSharedFolder();
-  startSharedRefresh();
- }catch(e){if(e&&e.name!=="AbortError")folderStatus("Zugriff konnte nicht hergestellt werden.","bad")}
+  sharedDirs[lot]=await window.showDirectoryPicker({mode:"readwrite"});
+  folderStatus(lot,esc(sharedDirs[lot].name)+" · verbunden · automatische Synchronisierung aktiv","ok");
+  await refreshSharedFolders();startSharedRefresh();
+ }catch(e){if(e&&e.name!=="AbortError")folderStatus(lot,"Zugriff konnte nicht hergestellt werden.","bad")}
 }
-async function refreshSharedFolder(){
- if(!sharedDirHandle)return;
+async function readSharedLot(lot){
+ let dir=sharedDirs[lot];if(!dir)return [];
+ let rows=[];
  try{
-  let rows=[];
-  for await (const [name,h] of sharedDirHandle.entries()){
+  for await(const [name,h] of dir.entries()){
    if(h.kind!=="file"||!/^.+_MKF_.+\.json$/i.test(name))continue;
-   try{let f=await h.getFile(),x=JSON.parse(await f.text());x._sharedFile=name;x._sharedModified=f.lastModified;rows.push(x)}catch(e){}
+   try{let f=await h.getFile(),x=JSON.parse(await f.text());if(x.lot!==lot)continue;x._sharedFile=name;x._sharedModified=f.lastModified;x._sharedLot=lot;rows.push(x)}catch(e){}
   }
-  rows.sort((a,b)=>{let la=assessmentLabel(a),lb=assessmentLabel(b);return la.lot.localeCompare(lb.lot)||mkfNumber(a.mkf)-mkfNumber(b.mkf)});
-  sharedAssessments=rows;renderSharedAssessments();
- }catch(e){folderStatus("Gemeinsamer Ordner konnte nicht gelesen werden. Zugriff ggf. erneut freigeben.","bad")}
+ }catch(e){folderStatus(lot,"Ordner konnte nicht gelesen werden. Zugriff ggf. erneut freigeben.","bad")}
+ return rows;
+}
+async function refreshSharedFolders(){
+ let all=[];for(const lot of ["H41","H53"])all.push(...await readSharedLot(lot));
+ all.sort((a,b)=>String(a.lot).localeCompare(String(b.lot))||mkfNumber(a.mkf)-mkfNumber(b.mkf));
+ sharedAssessments=all;renderSharedAssessments();
 }
 function renderSharedAssessments(){
  let box=document.getElementById("sharedAssessments");if(!box)return;
- if(!sharedDirHandle){box.innerHTML="";return}
- if(!sharedAssessments.length){box.innerHTML='<div class="savedrow"><span class="note"><b>Gemeinsamer Ordner:</b> Noch keine Prüfungen vorhanden.</span></div>';return}
+ if(!sharedDirs.H41&&!sharedDirs.H53){box.innerHTML="";return}
+ if(!sharedAssessments.length){box.innerHTML='<div class="savedrow"><span class="note"><b>Gemeinsame Ordner:</b> Noch keine Prüfungen vorhanden.</span></div>';return}
  box.innerHTML='<div class="savedrow head"><span>Los</span><span>MKF</span><span>Bezeichnung</span><span>Geändert</span><span>Gemeinsam</span></div>'+
  sharedAssessments.map((x,i)=>{let a=assessmentLabel(x),d=x._savedAt?new Date(x._savedAt).toLocaleString("de-AT",{dateStyle:"short",timeStyle:"short"}):"–";return '<div class="savedrow"><b>'+esc(a.lot)+'</b><span>'+esc(a.mkf)+'</span><span>'+esc(a.title)+'</span><span class="meta">'+esc(d)+'</span><span class="savedactions"><button class="openbtn" onclick="openSharedAssessment('+i+')">Aufrufen</button></span></div>'}).join("");
 }
 function openSharedAssessment(i){
- let x=sharedAssessments[i];if(!x)return;
- apply(x);window.currentAssessmentId=x._assessmentId||("SHARED_"+x._sharedFile);
- sharedOpenedFile=x._sharedFile||"";sharedOpenedModified=x._sharedModified||0;sharedDirty=false;
- folderStatus(esc(sharedDirHandle.name)+" · "+esc(sharedOpenedFile)+" geöffnet · Konfliktschutz aktiv","ok");
+ let x=sharedAssessments[i];if(!x)return;apply(x);window.currentAssessmentId=x._assessmentId||("SHARED_"+x._sharedFile);
+ sharedOpenedFile=x._sharedFile||"";sharedOpenedModified=x._sharedModified||0;sharedOpenedLot=x._sharedLot||x.lot||"";sharedDirty=false;
+ folderStatus(sharedOpenedLot,esc(sharedDirs[sharedOpenedLot].name)+" · "+esc(sharedOpenedFile)+" geöffnet · Konfliktschutz aktiv","ok");
  window.scrollTo({top:0,behavior:"smooth"})
 }
-function startSharedRefresh(){clearInterval(sharedRefreshTimer);sharedRefreshTimer=setInterval(()=>refreshSharedFolder(),5000)}
-function sharedFileName(x){
- let lot=(x.lot==="OTHER"?(x.lotOther||"Anderes_Los"):(x.lot||"Los")).replace(/[^a-zA-Z0-9_-]+/g,"_");
- let mkf=mkfFmt(x.mkf||"").replace(/[^a-zA-Z0-9_-]+/g,"_")||"ohne_MKF";
- return lot+"_MKF_"+mkf+".json";
-}
+function startSharedRefresh(){clearInterval(sharedRefreshTimer);sharedRefreshTimer=setInterval(()=>refreshSharedFolders(),5000)}
+function sharedFileName(x){let mkf=mkfFmt(x.mkf||"").replace(/[^a-zA-Z0-9_-]+/g,"_")||"ohne_MKF";return x.lot+"_MKF_"+mkf+".json"}
 async function saveToSharedFolder(showMessage){
- if(!sharedDirHandle){if(showMessage)folderStatus("Bitte zuerst über „Speicherort auswählen“ einen Ordner wählen.","warn");return false}
+ let lot=activeSharedLot(),dir=activeSharedDir();
+ if(!lot){if(showMessage)alert("Gemeinsames Speichern ist für H41 und H53 eingerichtet. Bitte H41 oder H53 auswählen.");return false}
+ if(!dir){if(showMessage)folderStatus(lot,"Bitte zuerst den "+lot+"-Ordner auswählen.","warn");return false}
  try{
-  let perm=await sharedDirHandle.queryPermission({mode:"readwrite"});
-  if(perm!=="granted")perm=await sharedDirHandle.requestPermission({mode:"readwrite"});
-  if(perm!=="granted"){folderStatus("Schreibzugriff nicht freigegeben.","warn");return false}
-  let x=data();x._assessmentId=window.currentAssessmentId||x._assessmentId||("P"+Date.now());x._savedAt=new Date().toISOString();
-  let targetName=sharedFileName(x);
-  if(sharedOpenedFile&&sharedOpenedFile===targetName){
-   try{
-    let currentHandle=await sharedDirHandle.getFileHandle(targetName),currentFile=await currentHandle.getFile();
-    if(sharedOpenedModified&&currentFile.lastModified!==sharedOpenedModified){
-     clearTimeout(sharedSaveTimer);
-     folderStatus("KONFLIKT: "+esc(targetName)+" wurde seit dem Öffnen von einem anderen Mitarbeiter geändert. Automatisches Überschreiben wurde gestoppt. Bitte Prüfung neu aufrufen und Änderungen abgleichen.","bad");
-     return false;
-    }
-   }catch(e){}
+  let perm=await dir.queryPermission({mode:"readwrite"});if(perm!=="granted")perm=await dir.requestPermission({mode:"readwrite"});
+  if(perm!=="granted"){folderStatus(lot,"Schreibzugriff nicht freigegeben.","warn");return false}
+  let x=data();x._assessmentId=window.currentAssessmentId||x._assessmentId||("P"+Date.now());x._savedAt=new Date().toISOString();let targetName=sharedFileName(x);
+  if(sharedOpenedFile&&sharedOpenedLot===lot&&sharedOpenedFile===targetName){
+   try{let h=await dir.getFileHandle(targetName),f=await h.getFile();if(sharedOpenedModified&&f.lastModified!==sharedOpenedModified){clearTimeout(sharedSaveTimer);folderStatus(lot,"KONFLIKT: "+esc(targetName)+" wurde von einem anderen Mitarbeiter geändert. Automatisches Überschreiben wurde gestoppt. Bitte neu aufrufen und Änderungen abgleichen.","bad");return false}}catch(e){}
   }
-  let fh=await sharedDirHandle.getFileHandle(targetName,{create:true}),w=await fh.createWritable();
-  await w.write(JSON.stringify(x,null,2));await w.close();
-  try{let savedFile=await fh.getFile();sharedOpenedFile=targetName;sharedOpenedModified=savedFile.lastModified;sharedDirty=false}catch(e){}
-  folderStatus(esc(sharedDirHandle.name)+" · automatisch gespeichert "+new Date().toLocaleTimeString("de-AT",{hour:"2-digit",minute:"2-digit"})+" · gemeinsame Liste automatisch","ok");
-  await refreshSharedFolder();
-  return true;
- }catch(e){folderStatus("Automatisches Speichern fehlgeschlagen. Ordnerzugriff ggf. erneut freigeben.","bad");return false}
+  let fh=await dir.getFileHandle(targetName,{create:true}),w=await fh.createWritable();await w.write(JSON.stringify(x,null,2));await w.close();
+  try{let f=await fh.getFile();sharedOpenedFile=targetName;sharedOpenedModified=f.lastModified;sharedOpenedLot=lot;sharedDirty=false}catch(e){}
+  folderStatus(lot,esc(dir.name)+" · automatisch gespeichert "+new Date().toLocaleTimeString("de-AT",{hour:"2-digit",minute:"2-digit"}),"ok");
+  await refreshSharedFolders();return true;
+ }catch(e){folderStatus(lot,"Automatisches Speichern fehlgeschlagen. Ordnerzugriff ggf. erneut freigeben.","bad");return false}
 }
-function scheduleSharedSave(){
- if(!sharedDirHandle)return;sharedDirty=true;clearTimeout(sharedSaveTimer);sharedSaveTimer=setTimeout(()=>saveToSharedFolder(false),900);
-}
-document.addEventListener("input",scheduleSharedSave);
-document.addEventListener("change",scheduleSharedSave);
+function scheduleSharedSave(){let lot=activeSharedLot();if(!lot||!sharedDirs[lot])return;sharedDirty=true;clearTimeout(sharedSaveTimer);sharedSaveTimer=setTimeout(()=>saveToSharedFolder(false),900)}
+document.addEventListener("input",scheduleSharedSave);document.addEventListener("change",scheduleSharedSave);
 function assessmentStore(){try{return JSON.parse(localStorage.getItem("bverg365_assessments")||"[]")}catch(e){return []}}
 function assessmentLabel(x){let lot=x.lot==="OTHER"?(x.lotOther||"Anderes Los"):(x.lot||"–");return {lot:lot,mkf:x.mkf?mkfFmt(x.mkf):"–",title:x.title||"Ohne Bezeichnung"}}
 function syncCurrentToZ1(){
@@ -420,6 +411,6 @@ function save(){saveAssessment()}
 function load(){let x=localStorage.getItem("bverg365");if(x)apply(JSON.parse(x));else alert("Kein gespeicherter Stand vorhanden.")}
 function exportJSON(){let b=new Blob([JSON.stringify(data(),null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="BVerg365_"+(document.getElementById("mkf").value||"Pruefung")+".json";a.click();URL.revokeObjectURL(a.href)}
 function importJSON(e){let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>apply(JSON.parse(r.result));r.readAsText(f)}
-function resetAll(){if(confirm("Neue Prüfung starten? Nicht gespeicherte Eingaben gehen verloren.")){window.currentAssessmentId="";sharedOpenedFile="";sharedOpenedModified=0;sharedDirty=false;fields().forEach(e=>e.value="");document.querySelectorAll('input[name="legalbasis"]').forEach(e=>e.checked=false);document.getElementById("type").value="bau";document.getElementById("upper").value="yes";decision();calc()}}
+function resetAll(){if(confirm("Neue Prüfung starten? Nicht gespeicherte Eingaben gehen verloren.")){window.currentAssessmentId="";sharedOpenedFile="";sharedOpenedModified=0;sharedOpenedLot="";sharedDirty=false;fields().forEach(e=>e.value="");document.querySelectorAll('input[name="legalbasis"]').forEach(e=>e.checked=false);document.getElementById("type").value="bau";document.getElementById("upper").value="yes";decision();calc()}}
 build();addZ2AuditHinweis();restoreLocks();renderZ1();calc();renderAssessments();
 </script></body></html>
