@@ -140,8 +140,9 @@ Die in diesem Prüftool erfassten Z-1-Vertragsänderungen werden <b>netto saldie
 </div></section>
 
 <section class="card no-print"><h2>6 · Gespeicherte Prüfungen</h2>
-<p class="note">Abgeschlossene oder noch in Bearbeitung befindliche Prüfungen können lokal in diesem Browser gespeichert, später wieder aufgerufen und bei Bedarf gelöscht werden.</p>
-<div class="actions"><button class="btn" onclick="saveAssessment()">Aktuellen Eintrag lokal speichern</button><button class="btn alt" onclick="exportJSON()">JSON exportieren</button><button class="btn alt" onclick="document.getElementById('imp').click()">JSON importieren</button><input id="imp" type="file" accept=".json" hidden onchange="importJSON(event)"><button class="btn" onclick="printAssessment()">A4 / Drucken</button><button class="btn alt" onclick="resetAll()">Neue Prüfung</button></div>
+<p class="note">Prüfungen können weiterhin lokal im Browser gespeichert werden. Zusätzlich kann ein gemeinsamer Ordner – z. B. auf einem eingebundenen Netzlaufwerk – als Speicherort gewählt werden. Bei unterstützten Browsern wird der aktuelle Vorgang anschließend automatisch als JSON-Datei in diesem Ordner gespeichert.</p>
+<div class="result" id="folderStatus" style="margin-bottom:12px"><b>Gemeinsamer Speicherort:</b> nicht ausgewählt</div>
+<div class="actions"><button class="btn" onclick="chooseSharedFolder()">Speicherort auswählen</button><button class="btn alt" onclick="saveToSharedFolder(true)">Jetzt im Ordner speichern</button><button class="btn" onclick="saveAssessment()">Aktuellen Eintrag lokal speichern</button><button class="btn alt" onclick="exportJSON()">JSON exportieren</button><button class="btn alt" onclick="document.getElementById('imp').click()">JSON importieren</button><input id="imp" type="file" accept=".json" hidden onchange="importJSON(event)"><button class="btn" onclick="printAssessment()">A4 / Drucken</button><button class="btn alt" onclick="resetAll()">Neue Prüfung</button></div>
 <div id="savedAssessments" class="savedlist"></div>
 <p class="note">Die lokalen Einträge werden ausschließlich im aktuell verwendeten Browser gespeichert. Interne Entscheidungshilfe für die Ersteinschätzung durch die Projektleitung. Die abschließende vergaberechtliche Prüfung erfolgt durch die Abteilung Beschaffung. Das Ergebnis beruht ausschließlich auf den eingegebenen Angaben. Bei Z 5/6 ist im Oberschwellenbereich die Bekanntgabe nach § 365 Abs. 4 gesondert zu beachten.</p></section>
 </main><div id="printFooter"><span id="printStamp"></span><span class="pageCounter"></span></div>
@@ -307,6 +308,43 @@ function preparePrint(){
 function cleanupPrint(){document.querySelectorAll(".print-hide").forEach(e=>e.classList.remove("print-hide"));document.querySelectorAll(".print-selected").forEach(e=>e.classList.remove("print-selected"))}
 window.addEventListener("beforeprint",preparePrint);window.addEventListener("afterprint",cleanupPrint);
 function printAssessment(){preparePrint();window.print()}
+let sharedDirHandle=null, sharedSaveTimer=null;
+function folderSupported(){return typeof window.showDirectoryPicker==="function"}
+function folderStatus(msg,cls){
+ let e=document.getElementById("folderStatus");if(!e)return;
+ e.className="result "+(cls||"");e.innerHTML="<b>Gemeinsamer Speicherort:</b> "+msg;
+}
+async function chooseSharedFolder(){
+ if(!folderSupported()){folderStatus("Ordnerzugriff wird von diesem Browser nicht unterstützt. Bitte einen Chromium-basierten Desktop-Browser verwenden.","warn");return}
+ try{
+  sharedDirHandle=await window.showDirectoryPicker({mode:"readwrite"});
+  folderStatus(esc(sharedDirHandle.name)+" · verbunden","ok");
+  await saveToSharedFolder(false);
+ }catch(e){if(e&&e.name!=="AbortError")folderStatus("Zugriff konnte nicht hergestellt werden.","bad")}
+}
+function sharedFileName(x){
+ let lot=(x.lot==="OTHER"?(x.lotOther||"Anderes_Los"):(x.lot||"Los")).replace(/[^a-zA-Z0-9_-]+/g,"_");
+ let mkf=mkfFmt(x.mkf||"").replace(/[^a-zA-Z0-9_-]+/g,"_")||"ohne_MKF";
+ return lot+"_MKF_"+mkf+".json";
+}
+async function saveToSharedFolder(showMessage){
+ if(!sharedDirHandle){if(showMessage)folderStatus("Bitte zuerst über „Speicherort auswählen“ einen Ordner wählen.","warn");return false}
+ try{
+  let perm=await sharedDirHandle.queryPermission({mode:"readwrite"});
+  if(perm!=="granted")perm=await sharedDirHandle.requestPermission({mode:"readwrite"});
+  if(perm!=="granted"){folderStatus("Schreibzugriff nicht freigegeben.","warn");return false}
+  let x=data();x._assessmentId=window.currentAssessmentId||x._assessmentId||("P"+Date.now());x._savedAt=new Date().toISOString();
+  let fh=await sharedDirHandle.getFileHandle(sharedFileName(x),{create:true}),w=await fh.createWritable();
+  await w.write(JSON.stringify(x,null,2));await w.close();
+  folderStatus(esc(sharedDirHandle.name)+" · automatisch gespeichert "+new Date().toLocaleTimeString("de-AT",{hour:"2-digit",minute:"2-digit"}),"ok");
+  return true;
+ }catch(e){folderStatus("Automatisches Speichern fehlgeschlagen. Ordnerzugriff ggf. erneut freigeben.","bad");return false}
+}
+function scheduleSharedSave(){
+ if(!sharedDirHandle)return;clearTimeout(sharedSaveTimer);sharedSaveTimer=setTimeout(()=>saveToSharedFolder(false),900);
+}
+document.addEventListener("input",scheduleSharedSave);
+document.addEventListener("change",scheduleSharedSave);
 function assessmentStore(){try{return JSON.parse(localStorage.getItem("bverg365_assessments")||"[]")}catch(e){return []}}
 function assessmentLabel(x){let lot=x.lot==="OTHER"?(x.lotOther||"Anderes Los"):(x.lot||"–");return {lot:lot,mkf:x.mkf?mkfFmt(x.mkf):"–",title:x.title||"Ohne Bezeichnung"}}
 function syncCurrentToZ1(){
@@ -326,7 +364,7 @@ function saveAssessment(){
  x._assessmentId=id;x._savedAt=now;
  let i=list.findIndex(v=>v._assessmentId===id);if(i>=0)list[i]=x;else list.unshift(x);
  localStorage.setItem("bverg365_assessments",JSON.stringify(list));
- window.currentAssessmentId=id;renderAssessments();alert(i>=0?"Eintrag aktualisiert.":"Eintrag lokal gespeichert.");
+ window.currentAssessmentId=id;renderAssessments();saveToSharedFolder(false);alert(i>=0?"Eintrag aktualisiert.":"Eintrag lokal gespeichert.");
 }
 function renderAssessments(){
  let box=document.getElementById("savedAssessments");if(!box)return;let list=assessmentStore().sort((a,b)=>mkfNumber(a.mkf)-mkfNumber(b.mkf));
