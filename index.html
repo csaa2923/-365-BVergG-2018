@@ -226,6 +226,13 @@ function addZ2AuditHinweis(){
  • warum die konkrete Änderung von dieser Klausel eindeutig erfasst ist.<br>
  Im Zweifelsfall ist vor weiterer Bearbeitung eine Abstimmung mit der Beschaffung vorzunehmen.`;
  const z=p.querySelector(".ztitle"); if(z) z.insertAdjacentElement("afterend",box); else p.prepend(box);
+ const clause=document.createElement("div");
+ clause.id="z2ClauseBox";
+ clause.style.margin="0 0 14px";
+ clause.innerHTML=`<label for="z2ClauseText"><b>Pflichtfeld · genauer Wortlaut der Vertragsänderungsklausel</b></label>
+ <textarea id="z2ClauseText" rows="7" placeholder="Hier den vollständigen und genauen Wortlaut der herangezogenen Vertragsänderungsklausel aus den ursprünglichen Ausschreibungsunterlagen einfügen." oninput="assess()"></textarea>
+ <small class="note">Bei Heranziehung von Z 2 ist der Wortlaut der konkret angewendeten Klausel vollständig zu dokumentieren. Nicht nur Fundstelle oder Zusammenfassung angeben.</small>`;
+ box.insertAdjacentElement("afterend",clause);
 }
 
 function build(){
@@ -277,6 +284,7 @@ document.getElementById("limit").textContent=lim+" %";document.getElementById("p
 function assess(){let possible=[];
  defs.forEach((d,i)=>{let vals=d[1].map(q=>{let e=document.querySelector('input[name="'+q[0]+'"]:checked');return e?e.value:""}), el=document.getElementById("r"+i), ok=vals.length&&vals.every(v=>v=="yes"||v=="na")&&vals.some(v=>v=="yes"), no=vals.some(v=>v=="no");
  if(i==0){let ref=n("ref")||n("orig"),cum=n("cum")||n("change"),lim=document.getElementById("type").value=="bau"?.15:.10;if(ref&&cum/ref>lim) no=true,ok=false}
+ if(i==1){let t=document.getElementById("z2ClauseText");if(!t||!t.value.trim()){ok=false;el.className="result warn";el.textContent="Pflichtfeld offen: Der genaue Wortlaut der Vertragsänderungsklausel ist einzutragen.";return}}
  if((i==4||i==5)){let ref=n("ref")||n("orig");if(ref&&n("change")/ref>.5){no=true;ok=false}}
  el.className="result "+(ok?"ok":no?"bad":"warn");el.textContent=ok?"Eingaben sprechen für die Erfüllung dieser Prüfkriterien.":no?"Mindestens ein Prüfkriterium ist nicht erfüllt.":"Prüfung noch nicht vollständig.";if(ok)possible.push("Z "+(i+1))});
  let o=document.getElementById("overall");o.className="result "+(possible.length?"ok":"warn");o.textContent=possible.length?"Nach den Eingaben kommen folgende Tatbestände in Betracht: "+possible.join(", ")+". Abschließende vergaberechtliche Prüfung/Freigabe erforderlich.":"Derzeit ergibt sich noch keine vollständig positiv beantwortete Ziffer."}
@@ -311,6 +319,8 @@ function syncCurrentToZ1(){
  a.sort((x,y)=>mkfNumber(x.mkf)-mkfNumber(y.mkf));saveZ1(a);renderZ1();
 }
 function saveAssessment(){
+ let lb=document.querySelector('input[name="legalbasis"]:checked');
+ if(lb&&lb.id==="basis2"){let t=document.getElementById("z2ClauseText");if(!t||!t.value.trim()){alert("Z 2: Bitte den genauen Wortlaut der Vertragsänderungsklausel im Pflichtfeld eintragen.");if(t){t.focus();t.scrollIntoView({behavior:"smooth",block:"center"})}return}}
  normalizeMkfField(document.getElementById("mkf"));syncCurrentToZ1();
  let x=data(),list=assessmentStore(),id=x._assessmentId||("P"+Date.now()),now=new Date().toISOString();
  x._assessmentId=id;x._savedAt=now;
