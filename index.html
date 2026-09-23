@@ -69,7 +69,7 @@ section.card:nth-of-type(4),section.card:nth-of-type(5){break-before:auto;page-b
 <header><h1>§ 365 BVergG 2018 – Beurteilung einer Vertragsänderung</h1><p>Interne Prüfhilfe · Fassung § 365 gültig ab 01.03.2026</p></header>
 <main>
 <div class="card" style="padding:12px 18px"><div class="note"><b style="color:var(--navy)">Ablauf:</b> Los wählen → Index-/Wertbasis festlegen → Z-1-Änderungen erfassen → Checkliste beantworten → Rechtsgrundlage auswählen → Beurteilung dokumentieren.</div></div><section class="card"><h2>1 · Vorgang</h2><div class="grid">
-<div><label>Los</label><select id="lot" onchange="setLotDefaults();renderZ1()"><option value="">– Los auswählen –</option><option value="H41">H41</option><option value="H53">H53</option><option value="OTHER">Anderes Los – händisch</option></select><input id="lotOther" style="display:none;margin-top:7px" placeholder="Losbezeichnung händisch eingeben" oninput="renderZ1()"></div>
+<div><label>Los</label><select id="lot" onchange="setLotDefaults();renderZ1();updateSharedFolderUI()"><option value="">– Los auswählen –</option><option value="H41">H41</option><option value="H53">H53</option><option value="OTHER">Anderes Los – händisch</option></select><input id="lotOther" style="display:none;margin-top:7px" placeholder="Losbezeichnung händisch eingeben" oninput="renderZ1()"></div>
 <div><label>Vertrag</label><input id="contract" class="locked" readonly placeholder="wird automatisch bzw. händisch eingetragen"></div>
 <div><label>MKF / Änderung</label><input id="mkf" placeholder="z. B. 001" onblur="normalizeMkfField(this)"><small class="note">MKF-Nummer wird automatisch dreistellig dargestellt.</small></div><div><label>Datum</label><input id="date" type="date"></div>
 <div style="grid-column:span 2"><label>Bezeichnung der Änderung</label><input id="title"></div>
@@ -141,9 +141,9 @@ Die in diesem Prüftool erfassten Z-1-Vertragsänderungen werden <b>netto saldie
 
 <section class="card no-print"><h2>6 · Gespeicherte Prüfungen</h2>
 <p class="note">Prüfungen können weiterhin lokal im Browser gespeichert werden. Zusätzlich kann ein gemeinsamer Ordner – z. B. auf einem eingebundenen Netzlaufwerk – als Speicherort gewählt werden. Bei unterstützten Browsern wird der aktuelle Vorgang anschließend automatisch als JSON-Datei in diesem Ordner gespeichert.</p>
-<div class="grid g2" style="margin-bottom:12px">
-<div class="result" id="folderStatusH41"><b>H41 Speicherort:</b> nicht ausgewählt<br><button class="mini" style="margin-top:7px" onclick="chooseSharedFolder('H41')">H41-Ordner auswählen</button></div>
-<div class="result" id="folderStatusH53"><b>H53 Speicherort:</b> nicht ausgewählt<br><button class="mini" style="margin-top:7px" onclick="chooseSharedFolder('H53')">H53-Ordner auswählen</button></div>
+<div class="grid g2" id="sharedFolderChoices" style="margin-bottom:12px">
+<div class="result" id="folderStatusH41" style="display:none"><b>H41 Speicherort:</b> nicht ausgewählt<br><button class="mini" style="margin-top:7px" onclick="chooseSharedFolder('H41')">H41-Ordner auswählen</button></div>
+<div class="result" id="folderStatusH53" style="display:none"><b>H53 Speicherort:</b> nicht ausgewählt<br><button class="mini" style="margin-top:7px" onclick="chooseSharedFolder('H53')">H53-Ordner auswählen</button></div>
 </div>
 <div class="actions"><button class="btn alt" onclick="saveToSharedFolder(true)">Aktuelles Los jetzt speichern</button><button class="btn" onclick="saveAssessment()">Aktuellen Eintrag lokal speichern</button><button class="btn alt" onclick="exportJSON()">JSON exportieren</button><button class="btn alt" onclick="document.getElementById('imp').click()">JSON importieren</button><input id="imp" type="file" accept=".json" hidden onchange="importJSON(event)"><button class="btn" onclick="printAssessment()">A4 / Drucken</button><button class="btn alt" onclick="resetAll()">Neue Prüfung</button></div>
 <div id="sharedAssessments" class="savedlist" style="margin-bottom:12px"></div><div id="savedAssessments" class="savedlist"></div>
@@ -312,6 +312,12 @@ function cleanupPrint(){document.querySelectorAll(".print-hide").forEach(e=>e.cl
 window.addEventListener("beforeprint",preparePrint);window.addEventListener("afterprint",cleanupPrint);
 function printAssessment(){preparePrint();window.print()}
 let sharedDirs={H41:null,H53:null}, sharedSaveTimer=null, sharedRefreshTimer=null, sharedAssessments=[], sharedOpenedFile="", sharedOpenedModified=0, sharedOpenedLot="", sharedDirty=false;
+function updateSharedFolderUI(){
+ let lot=activeSharedLot(),h41=document.getElementById("folderStatusH41"),h53=document.getElementById("folderStatusH53"),box=document.getElementById("sharedAssessments");
+ if(h41)h41.style.display=lot==="H41"?"block":"none";
+ if(h53)h53.style.display=lot==="H53"?"block":"none";
+ if(box)renderSharedAssessments();
+}
 function folderSupported(){return typeof window.showDirectoryPicker==="function"}
 function activeSharedLot(){let l=document.getElementById("lot").value;return l==="H41"||l==="H53"?l:""}
 function activeSharedDir(){return sharedDirs[activeSharedLot()]||null}
@@ -345,10 +351,11 @@ async function refreshSharedFolders(){
 }
 function renderSharedAssessments(){
  let box=document.getElementById("sharedAssessments");if(!box)return;
- if(!sharedDirs.H41&&!sharedDirs.H53){box.innerHTML="";return}
- if(!sharedAssessments.length){box.innerHTML='<div class="savedrow"><span class="note"><b>Gemeinsame Ordner:</b> Noch keine Prüfungen vorhanden.</span></div>';return}
+ let lot=activeSharedLot();if(!lot||!sharedDirs[lot]){box.innerHTML="";return}
+ let rows=sharedAssessments.map((x,i)=>({x,i})).filter(r=>r.x.lot===lot);
+ if(!rows.length){box.innerHTML='<div class="savedrow"><span class="note"><b>'+lot+':</b> Noch keine gemeinsamen Prüfungen vorhanden.</span></div>';return}
  box.innerHTML='<div class="savedrow head"><span>Los</span><span>MKF</span><span>Bezeichnung</span><span>Geändert</span><span>Gemeinsam</span></div>'+
- sharedAssessments.map((x,i)=>{let a=assessmentLabel(x),d=x._savedAt?new Date(x._savedAt).toLocaleString("de-AT",{dateStyle:"short",timeStyle:"short"}):"–";return '<div class="savedrow"><b>'+esc(a.lot)+'</b><span>'+esc(a.mkf)+'</span><span>'+esc(a.title)+'</span><span class="meta">'+esc(d)+'</span><span class="savedactions"><button class="openbtn" onclick="openSharedAssessment('+i+')">Aufrufen</button></span></div>'}).join("");
+ rows.map(r=>{let x=r.x,i=r.i,a=assessmentLabel(x),d=x._savedAt?new Date(x._savedAt).toLocaleString("de-AT",{dateStyle:"short",timeStyle:"short"}):"–";return '<div class="savedrow"><b>'+esc(a.lot)+'</b><span>'+esc(a.mkf)+'</span><span>'+esc(a.title)+'</span><span class="meta">'+esc(d)+'</span><span class="savedactions"><button class="openbtn" onclick="openSharedAssessment('+i+')">Aufrufen</button></span></div>'}).join("");
 }
 function openSharedAssessment(i){
  let x=sharedAssessments[i];if(!x)return;apply(x);window.currentAssessmentId=x._assessmentId||("SHARED_"+x._sharedFile);
@@ -412,5 +419,5 @@ function load(){let x=localStorage.getItem("bverg365");if(x)apply(JSON.parse(x))
 function exportJSON(){let b=new Blob([JSON.stringify(data(),null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="BVerg365_"+(document.getElementById("mkf").value||"Pruefung")+".json";a.click();URL.revokeObjectURL(a.href)}
 function importJSON(e){let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>apply(JSON.parse(r.result));r.readAsText(f)}
 function resetAll(){if(confirm("Neue Prüfung starten? Nicht gespeicherte Eingaben gehen verloren.")){window.currentAssessmentId="";sharedOpenedFile="";sharedOpenedModified=0;sharedOpenedLot="";sharedDirty=false;fields().forEach(e=>e.value="");document.querySelectorAll('input[name="legalbasis"]').forEach(e=>e.checked=false);document.getElementById("type").value="bau";document.getElementById("upper").value="yes";decision();calc()}}
-build();addZ2AuditHinweis();restoreLocks();renderZ1();calc();renderAssessments();
+build();addZ2AuditHinweis();restoreLocks();renderZ1();calc();renderAssessments();updateSharedFolderUI();
 </script></body></html>
