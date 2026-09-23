@@ -308,7 +308,7 @@ function preparePrint(){
 function cleanupPrint(){document.querySelectorAll(".print-hide").forEach(e=>e.classList.remove("print-hide"));document.querySelectorAll(".print-selected").forEach(e=>e.classList.remove("print-selected"))}
 window.addEventListener("beforeprint",preparePrint);window.addEventListener("afterprint",cleanupPrint);
 function printAssessment(){preparePrint();window.print()}
-let sharedDirHandle=null, sharedSaveTimer=null, sharedRefreshTimer=null, sharedAssessments=[];
+let sharedDirHandle=null, sharedSaveTimer=null, sharedRefreshTimer=null, sharedAssessments=[], sharedOpenedFile="", sharedOpenedModified=0, sharedDirty=false;
 function folderSupported(){return typeof window.showDirectoryPicker==="function"}
 function folderStatus(msg,cls){
  let e=document.getElementById("folderStatus");if(!e)return;
@@ -342,7 +342,13 @@ function renderSharedAssessments(){
  box.innerHTML='<div class="savedrow head"><span>Los</span><span>MKF</span><span>Bezeichnung</span><span>Geändert</span><span>Gemeinsam</span></div>'+
  sharedAssessments.map((x,i)=>{let a=assessmentLabel(x),d=x._savedAt?new Date(x._savedAt).toLocaleString("de-AT",{dateStyle:"short",timeStyle:"short"}):"–";return '<div class="savedrow"><b>'+esc(a.lot)+'</b><span>'+esc(a.mkf)+'</span><span>'+esc(a.title)+'</span><span class="meta">'+esc(d)+'</span><span class="savedactions"><button class="openbtn" onclick="openSharedAssessment('+i+')">Aufrufen</button></span></div>'}).join("");
 }
-function openSharedAssessment(i){let x=sharedAssessments[i];if(!x)return;apply(x);window.currentAssessmentId=x._assessmentId||("SHARED_"+x._sharedFile);window.scrollTo({top:0,behavior:"smooth"})}
+function openSharedAssessment(i){
+ let x=sharedAssessments[i];if(!x)return;
+ apply(x);window.currentAssessmentId=x._assessmentId||("SHARED_"+x._sharedFile);
+ sharedOpenedFile=x._sharedFile||"";sharedOpenedModified=x._sharedModified||0;sharedDirty=false;
+ folderStatus(esc(sharedDirHandle.name)+" · "+esc(sharedOpenedFile)+" geöffnet · Konfliktschutz aktiv","ok");
+ window.scrollTo({top:0,behavior:"smooth"})
+}
 function startSharedRefresh(){clearInterval(sharedRefreshTimer);sharedRefreshTimer=setInterval(()=>refreshSharedFolder(),5000)}
 function sharedFileName(x){
  let lot=(x.lot==="OTHER"?(x.lotOther||"Anderes_Los"):(x.lot||"Los")).replace(/[^a-zA-Z0-9_-]+/g,"_");
@@ -356,15 +362,27 @@ async function saveToSharedFolder(showMessage){
   if(perm!=="granted")perm=await sharedDirHandle.requestPermission({mode:"readwrite"});
   if(perm!=="granted"){folderStatus("Schreibzugriff nicht freigegeben.","warn");return false}
   let x=data();x._assessmentId=window.currentAssessmentId||x._assessmentId||("P"+Date.now());x._savedAt=new Date().toISOString();
-  let fh=await sharedDirHandle.getFileHandle(sharedFileName(x),{create:true}),w=await fh.createWritable();
+  let targetName=sharedFileName(x);
+  if(sharedOpenedFile&&sharedOpenedFile===targetName){
+   try{
+    let currentHandle=await sharedDirHandle.getFileHandle(targetName),currentFile=await currentHandle.getFile();
+    if(sharedOpenedModified&&currentFile.lastModified!==sharedOpenedModified){
+     clearTimeout(sharedSaveTimer);
+     folderStatus("KONFLIKT: "+esc(targetName)+" wurde seit dem Öffnen von einem anderen Mitarbeiter geändert. Automatisches Überschreiben wurde gestoppt. Bitte Prüfung neu aufrufen und Änderungen abgleichen.","bad");
+     return false;
+    }
+   }catch(e){}
+  }
+  let fh=await sharedDirHandle.getFileHandle(targetName,{create:true}),w=await fh.createWritable();
   await w.write(JSON.stringify(x,null,2));await w.close();
+  try{let savedFile=await fh.getFile();sharedOpenedFile=targetName;sharedOpenedModified=savedFile.lastModified;sharedDirty=false}catch(e){}
   folderStatus(esc(sharedDirHandle.name)+" · automatisch gespeichert "+new Date().toLocaleTimeString("de-AT",{hour:"2-digit",minute:"2-digit"})+" · gemeinsame Liste automatisch","ok");
   await refreshSharedFolder();
   return true;
  }catch(e){folderStatus("Automatisches Speichern fehlgeschlagen. Ordnerzugriff ggf. erneut freigeben.","bad");return false}
 }
 function scheduleSharedSave(){
- if(!sharedDirHandle)return;clearTimeout(sharedSaveTimer);sharedSaveTimer=setTimeout(()=>saveToSharedFolder(false),900);
+ if(!sharedDirHandle)return;sharedDirty=true;clearTimeout(sharedSaveTimer);sharedSaveTimer=setTimeout(()=>saveToSharedFolder(false),900);
 }
 document.addEventListener("input",scheduleSharedSave);
 document.addEventListener("change",scheduleSharedSave);
@@ -402,6 +420,6 @@ function save(){saveAssessment()}
 function load(){let x=localStorage.getItem("bverg365");if(x)apply(JSON.parse(x));else alert("Kein gespeicherter Stand vorhanden.")}
 function exportJSON(){let b=new Blob([JSON.stringify(data(),null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="BVerg365_"+(document.getElementById("mkf").value||"Pruefung")+".json";a.click();URL.revokeObjectURL(a.href)}
 function importJSON(e){let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>apply(JSON.parse(r.result));r.readAsText(f)}
-function resetAll(){if(confirm("Neue Prüfung starten? Nicht gespeicherte Eingaben gehen verloren.")){window.currentAssessmentId="";fields().forEach(e=>e.value="");document.querySelectorAll('input[name="legalbasis"]').forEach(e=>e.checked=false);document.getElementById("type").value="bau";document.getElementById("upper").value="yes";decision();calc()}}
+function resetAll(){if(confirm("Neue Prüfung starten? Nicht gespeicherte Eingaben gehen verloren.")){window.currentAssessmentId="";sharedOpenedFile="";sharedOpenedModified=0;sharedDirty=false;fields().forEach(e=>e.value="");document.querySelectorAll('input[name="legalbasis"]').forEach(e=>e.checked=false);document.getElementById("type").value="bau";document.getElementById("upper").value="yes";decision();calc()}}
 build();addZ2AuditHinweis();restoreLocks();renderZ1();calc();renderAssessments();
 </script></body></html>
